@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Menú administrativo - Carpintería Circular 360</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --verde-principal: #3f5b45;
+            --verde-oscuro: #304837;
+            --verde-claro: #e9f0eb;
+            --madera: #765341;
+            --fondo: #f5f2ec;
+            --borde: #e3ded5;
+        }
+
+        html {
+            overflow-y: scroll;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--fondo);
+            color: #2f2f2f;
+        }
+
+        .navbar-administrativa {
+            background: linear-gradient(
+                135deg,
+                var(--verde-principal),
+                var(--verde-oscuro)
+            );
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        .encabezado-pagina {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(63, 91, 69, 0.97),
+                    rgba(48, 72, 55, 0.95)
+                );
+            color: white;
+            border-radius: 1rem;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .acciones-encabezado .btn {
+            min-width: 165px;
+        }
+
+
+        
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-link {
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.88);
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .menu-movil {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .section-title {
+            color: var(--verde-oscuro);
+            font-weight: 700;
+        }
+
+        .metric-card,
+        .module-card {
+            height: 100%;
+            background: #ffffff;
+            border: 1px solid var(--borde);
+            border-radius: 1rem;
+            box-shadow: 0 0.35rem 1rem rgba(47, 67, 52, 0.07);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .metric-card:hover,
+        .module-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.6rem 1.4rem rgba(47, 67, 52, 0.11);
+        }
+
+        .metric-card {
+            padding: 1.25rem;
+        }
+
+        .metric-icon,
+        .module-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            color: var(--verde-principal);
+            background-color: #e8efe9;
+            border-radius: 0.85rem;
+        }
+
+        .metric-icon {
+            width: 46px;
+            height: 46px;
+            font-size: 1.25rem;
+        }
+
+        .module-icon {
+            width: 54px;
+            height: 54px;
+            font-size: 1.5rem;
+        }
+
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .metric-value {
+            color: var(--verde-oscuro);
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1.15;
+        }
+
+        .module-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .module-card .card-title {
+            color: var(--verde-oscuro);
+            font-weight: 700;
+        }
+
+        .module-card .card-text {
+            min-height: 48px;
+            color: #6c757d;
+        }
+
+        .btn-madera {
+            background-color: var(--verde-principal);
+            border-color: var(--verde-principal);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-madera:hover,
+        .btn-madera:focus {
+            background-color: var(--verde-oscuro);
+            border-color: var(--verde-oscuro);
+            color: #ffffff;
+        }
+
+        .btn-verde-outline {
+            border-color: var(--verde-principal);
+            color: var(--verde-principal);
+            font-weight: 600;
+        }
+
+        .btn-verde-outline:hover,
+        .btn-verde-outline:focus {
+            background-color: var(--verde-principal);
+            border-color: var(--verde-principal);
+            color: #ffffff;
+        }
+
+        .footer-admin {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-admin,
+
+            .navbar-collapse {
+                padding: 0.8rem 0 0.4rem;
+            }
+
+            main {
+                padding-top: 1.5rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .acciones-encabezado .btn {
+                width: 100%;
+                min-width: 0;
+            }
+
+
+            .module-card .card-text {
+                min-height: auto;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-administrativa">
+    <div class="container-fluid px-lg-4">
+
+        <a class="navbar-brand"
+           th:href="@{/admin}">
+            <i class="bi bi-tree-fill me-2"></i>
+            Carpintería Circular 360
+        </a>
+
+        <button class="navbar-toggler menu-movil"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menuAdministrativo"
+                aria-controls="menuAdministrativo"
+                aria-expanded="false"
+                aria-label="Abrir navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse"
+             id="menuAdministrativo">
+
+            <ul class="navbar-nav ms-auto gap-lg-1 mt-3 mt-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active"
+                       aria-current="page"
+                       th:href="@{/admin}">
+                        <i class="bi bi-grid me-1"></i>
+                        Menú
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/productos}">
+                        <i class="bi bi-box-seam me-1"></i>
+                        Productos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/clientes}">
+                        <i class="bi bi-people me-1"></i>
+                        Clientes
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/pedidos}">
+                        <i class="bi bi-receipt me-1"></i>
+                        Pedidos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/envios}">
+                        <i class="bi bi-truck me-1"></i>
+                        Envíos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/reportes}">
+                        <i class="bi bi-bar-chart me-1"></i>
+                        Reportes
+                    </a>
+                </li>
+
+                <li class="nav-item ms-lg-2">
+                    <a class="nav-link bg-danger text-white" th:href="@{/logout}">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        Cerrar sesión
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<main class="container-fluid px-3 px-lg-4 py-4">
+        <section class="encabezado-pagina p-4 p-lg-5 mb-4">
+        <div class="row align-items-center g-4">
+
+            <div class="col-lg-7">
+                <p class="mb-2 text-white-50 fw-semibold">
+                    Panel de administración
+                </p>
+
+                <h1 class="h2 fw-bold mb-2">
+                    Menú administrativo
+                </h1>
+
+                <p class="mb-0 text-white-50">
+                    Gestiona los productos, clientes, pedidos, envíos y reportes
+                    de Carpintería Circular 360 desde un solo lugar.
+                </p>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="acciones-encabezado d-flex flex-column flex-sm-row justify-content-lg-end gap-2">
+                    <a class="btn btn-light"
+                       th:href="@{/}">
+                        <i class="bi bi-house-door me-1"></i>
+                        Ir al sitio público
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+                <div>
+                    <h2 class="section-title h4 mb-1">Resumen general</h2>
+                    <p class="text-secondary mb-0">Información principal del sistema.</p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="metric-card d-flex align-items-center gap-3">
+                        <div class="metric-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div>
+                            <div class="metric-label">Productos registrados</div>
+                            <div class="metric-value" th:text="${totalProductos}">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="metric-card d-flex align-items-center gap-3">
+                        <div class="metric-icon">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div>
+                            <div class="metric-label">Productos activos</div>
+                            <div class="metric-value" th:text="${productosActivos}">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="metric-card d-flex align-items-center gap-3">
+                        <div class="metric-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div>
+                            <div class="metric-label">Clientes registrados</div>
+                            <div class="metric-value" th:text="${totalClientes}">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="metric-card d-flex align-items-center gap-3">
+                        <div class="metric-icon">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <div>
+                            <div class="metric-label">Pedidos pendientes</div>
+                            <div class="metric-value" th:text="${pedidosPendientes}">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="metric-card d-flex align-items-center gap-3">
+                        <div class="metric-icon">
+                            <i class="bi bi-bag-check"></i>
+                        </div>
+                        <div>
+                            <div class="metric-label">Pedidos completados</div>
+                            <div class="metric-value" th:text="${pedidosCompletados}">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="metric-card d-flex align-items-center gap-3">
+                        <div class="metric-icon">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                        <div>
+                            <div class="metric-label">Total vendido</div>
+                            <div class="metric-value fs-4"
+                                 th:text="${'₡' + #numbers.formatDecimal(totalVendido, 1, 'COMMA', 2, 'POINT')}">
+                                ₡0.00
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="mb-3">
+                <h2 class="section-title h4 mb-1">Módulos del sistema</h2>
+                <p class="text-secondary mb-0">Selecciona el módulo que deseas administrar.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="card module-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="module-icon mb-3">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <h3 class="card-title h5">Productos</h3>
+                            <p class="card-text">
+                                Administra el catálogo, inventario, precios, categorías e imágenes.
+                            </p>
+                            <div class="d-flex gap-2 mt-auto">
+                                <a class="btn btn-madera flex-grow-1" th:href="@{/admin/productos}">
+                                    <i class="bi bi-eye me-1"></i> Ver
+                                </a>
+                                <a class="btn btn-verde-outline" th:href="@{/admin/productos/nuevo}"
+                                   title="Registrar producto">
+                                    <i class="bi bi-plus-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="card module-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="module-icon mb-3">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <h3 class="card-title h5">Clientes</h3>
+                            <p class="card-text">
+                                Consulta, registra y actualiza la información de tus clientes.
+                            </p>
+                            <div class="d-flex gap-2 mt-auto">
+                                <a class="btn btn-madera flex-grow-1" th:href="@{/admin/clientes}">
+                                    <i class="bi bi-eye me-1"></i> Ver
+                                </a>
+                                <a class="btn btn-verde-outline" th:href="@{/admin/clientes/nuevo}"
+                                   title="Registrar cliente">
+                                    <i class="bi bi-person-plus"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="card module-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="module-icon mb-3">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <h3 class="card-title h5">Pedidos</h3>
+                            <p class="card-text">
+                                Registra ventas, revisa detalles y controla el estado de los pedidos.
+                            </p>
+                            <div class="d-flex gap-2 mt-auto">
+                                <a class="btn btn-madera flex-grow-1" th:href="@{/admin/pedidos}">
+                                    <i class="bi bi-eye me-1"></i> Ver
+                                </a>
+                                <a class="btn btn-verde-outline" th:href="@{/admin/pedidos/nuevo}"
+                                   title="Registrar pedido">
+                                    <i class="bi bi-plus-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="card module-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="module-icon mb-3">
+                                <i class="bi bi-truck"></i>
+                            </div>
+                            <h3 class="card-title h5">Envíos</h3>
+                            <p class="card-text">
+                                Gestiona las direcciones, transportistas y estados de entrega.
+                            </p>
+                            <div class="d-flex gap-2 mt-auto">
+                                <a class="btn btn-madera flex-grow-1" th:href="@{/admin/envios}">
+                                    <i class="bi bi-eye me-1"></i> Ver
+                                </a>
+                                <a class="btn btn-verde-outline" th:href="@{/admin/envios/nuevo}"
+                                   title="Registrar envío">
+                                    <i class="bi bi-plus-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="card module-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="module-icon mb-3">
+                                <i class="bi bi-bar-chart-line"></i>
+                            </div>
+                            <h3 class="card-title h5">Reportes</h3>
+                            <p class="card-text">
+                                Consulta indicadores de productos, clientes, pedidos y ventas.
+                            </p>
+                            <a class="btn btn-madera mt-auto" th:href="@{/admin/reportes}">
+                                <i class="bi bi-bar-chart me-1"></i> Ver reportes
+                            </a>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="card module-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="module-icon mb-3">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                            <h3 class="card-title h5">Sitio público</h3>
+                            <p class="card-text">
+                                Regresa al inicio público para revisar la experiencia de los clientes.
+                            </p>
+                            <a class="btn btn-verde-outline mt-auto" th:href="@{/}">
+                                <i class="bi bi-house-door me-1"></i> Ir al inicio
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-admin text-center pt-5">
+            <p class="mb-0">Carpintería Circular 360 · Panel administrativo</p>
+        </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

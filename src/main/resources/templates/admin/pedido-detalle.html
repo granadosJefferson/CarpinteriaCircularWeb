@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Detalle del pedido - Carpintería Circular 360</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f1eb;
+            color: #2f2f2f;
+        }
+
+        header {
+            background-color: #3f5b45;
+            color: white;
+            padding: 20px 35px;
+        }
+
+        header h1 {
+            margin: 0 0 15px;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 9px 14px;
+            border-radius: 6px;
+        }
+
+        nav a:hover {
+            background-color: #304a37;
+        }
+
+        .cerrar-sesion {
+            background-color: #8a3b32;
+        }
+
+        main {
+            max-width: 950px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .encabezado h2 {
+            margin: 0 0 7px;
+            color: #3f5b45;
+        }
+
+        .encabezado p {
+            margin: 0;
+            color: #666666;
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 11px 18px;
+            background-color: #3f5b45;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .boton:hover {
+            background-color: #304a37;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .tarjeta h3 {
+            margin-top: 0;
+            color: #3f5b45;
+            border-bottom: 1px solid #dddddd;
+            padding-bottom: 12px;
+        }
+
+        .datos {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .dato {
+            background-color: #f8f7f4;
+            padding: 15px;
+            border-radius: 7px;
+        }
+
+        .dato strong {
+            display: block;
+            color: #3f5b45;
+            margin-bottom: 6px;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .estado-PENDIENTE {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .estado-EN_PROCESO {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .estado-COMPLETADO {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .estado-CANCELADO {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        th {
+            background-color: #e5ddd0;
+            color: #3f5b45;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 21px;
+            font-weight: bold;
+            color: #3f5b45;
+            margin-top: 20px;
+        }
+
+        .observaciones {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        footer {
+            margin-top: 45px;
+            background-color: #2f4334;
+            color: white;
+            text-align: center;
+            padding: 18px;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                padding: 20px;
+            }
+
+            nav {
+                flex-direction: column;
+            }
+
+            nav a {
+                background-color: rgba(255, 255, 255, 0.08);
+            }
+
+            .encabezado {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .datos {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Detalle del pedido</h1>
+
+    <nav>
+        <a th:href="@{/}">Inicio</a>
+        <a th:href="@{/admin}">Panel</a>
+        <a th:href="@{/admin/productos}">Productos</a>
+        <a th:href="@{/admin/clientes}">Clientes</a>
+        <a th:href="@{/admin/pedidos}">Pedidos</a>
+
+        <a class="cerrar-sesion"
+           th:href="@{/logout}">
+            Cerrar sesión
+        </a>
+    </nav>
+</header>
+
+<main>
+
+    <div class="encabezado">
+        <div>
+            <h2 th:text="${'Pedido #' + pedido.id}"></h2>
+            <p>Información completa del pedido registrado.</p>
+        </div>
+
+        <a class="boton"
+           th:href="@{/admin/pedidos}">
+            Volver a pedidos
+        </a>
+    </div>
+
+    <section class="tarjeta">
+        <h3>Información general</h3>
+
+        <div class="datos">
+
+            <div class="dato">
+                <strong>Número de pedido</strong>
+                <span th:text="${pedido.id}"></span>
+            </div>
+
+            <div class="dato">
+                <strong>Fecha</strong>
+
+                <span th:text="${#temporals.format(
+                        pedido.fecha,
+                        'dd/MM/yyyy HH:mm')}">
+                </span>
+            </div>
+
+            <div class="dato">
+                <strong>Estado</strong>
+
+                <span class="estado"
+                      th:classappend="${' estado-' + pedido.estado.name()}"
+                      th:text="${pedido.estado.name().replace('_', ' ')}">
+                </span>
+            </div>
+
+            <div class="dato">
+                <strong>Total</strong>
+
+                <span th:text="${'₡' + #numbers.formatDecimal(
+                        pedido.total,
+                        1,
+                        'COMMA',
+                        2,
+                        'POINT')}">
+                </span>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="tarjeta">
+        <h3>Cliente</h3>
+
+        <div class="datos">
+
+            <div class="dato">
+                <strong>Nombre</strong>
+                <span th:text="${pedido.cliente.nombre}"></span>
+            </div>
+
+            <div class="dato">
+                <strong>Correo</strong>
+                <span th:text="${pedido.cliente.correo}"></span>
+            </div>
+
+            <div class="dato">
+                <strong>Teléfono</strong>
+                <span th:text="${pedido.cliente.telefono}"></span>
+            </div>
+
+            <div class="dato">
+                <strong>Dirección</strong>
+
+                <span th:text="${pedido.cliente.direccion != null
+                        and !pedido.cliente.direccion.isBlank()
+                        ? pedido.cliente.direccion
+                        : 'No indicada'}">
+                </span>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="tarjeta">
+        <h3>Productos del pedido</h3>
+
+        <div class="tabla-contenedor">
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio unitario</th>
+                    <th>Subtotal</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="detalle : ${pedido.detalles}">
+
+                    <td th:text="${detalle.producto.nombre}"></td>
+
+                    <td th:text="${detalle.cantidad}"></td>
+
+                    <td th:text="${'₡' + #numbers.formatDecimal(
+                            detalle.precioUnitario,
+                            1,
+                            'COMMA',
+                            2,
+                            'POINT')}">
+                    </td>
+
+                    <td th:text="${'₡' + #numbers.formatDecimal(
+                            detalle.subtotal,
+                            1,
+                            'COMMA',
+                            2,
+                            'POINT')}">
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="total"
+             th:text="${'Total: ₡' + #numbers.formatDecimal(
+                    pedido.total,
+                    1,
+                    'COMMA',
+                    2,
+                    'POINT')}">
+        </div>
+    </section>
+
+    <section class="tarjeta">
+        <h3>Observaciones</h3>
+
+        <p class="observaciones"
+           th:text="${pedido.observaciones != null
+                and !pedido.observaciones.isBlank()
+                ? pedido.observaciones
+                : 'El pedido no tiene observaciones.'}">
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    <p>Carpintería Circular 360 - Detalle del pedido</p>
+</footer>
+
+</body>
+</html>

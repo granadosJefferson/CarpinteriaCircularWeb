@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Carpintería Circular 360</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Literata:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --verde-principal: #154212;
+            --verde-claro: #bcf0ae;
+            --verde-cta: #2d5a27;
+            --texto: #1a1c1c;
+            --texto-suave: #42493e;
+            --amarillo: #EAB308;
+            --gris-fondo: #f9f9f9;
+            --gris-borde: #c2c9bb;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--gris-fondo);
+            color: var(--texto);
+            font-family: "Hanken Grotesk", Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-serif {
+            font-family: "Literata", Georgia, serif;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 18px;
+            overflow: hidden;
+        }
+
+        .decoracion-verde {
+            position: absolute;
+            top: 20%;
+            left: -130px;
+            width: 330px;
+            height: 330px;
+            background: rgba(188, 240, 174, 0.28);
+            filter: blur(55px);
+            border-radius: 999px;
+            z-index: 0;
+        }
+
+        .decoracion-amarilla {
+            position: absolute;
+            bottom: 18%;
+            right: -130px;
+            width: 330px;
+            height: 330px;
+            background: rgba(234, 179, 8, 0.16);
+            filter: blur(55px);
+            border-radius: 999px;
+            z-index: 0;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 440px;
+            background: white;
+            border-radius: 22px;
+            border: 1px solid rgba(194, 201, 187, 0.35);
+            box-shadow: 0 22px 55px rgba(0, 0, 0, 0.12);
+            padding: 34px;
+            animation: subir 0.45s ease both;
+        }
+
+        @keyframes subir {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cancelar {
+            color: var(--texto-suave);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .cancelar:hover {
+            color: var(--verde-principal);
+        }
+
+        .cancelar i {
+            transition: 0.2s;
+        }
+
+        .cancelar:hover i {
+            transform: translateX(-3px);
+        }
+
+        .brand-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(188, 240, 174, 0.42);
+            color: var(--verde-principal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.45rem;
+            margin: 0 auto 14px;
+        }
+
+        .titulo-login {
+            color: var(--verde-principal);
+            font-family: "Literata", Georgia, serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitulo-login {
+            color: var(--texto-suave);
+            font-size: 0.82rem;
+            max-width: 330px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .form-label {
+            color: var(--texto-suave);
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 7px;
+        }
+
+        .form-control {
+            background-color: #fafaf8;
+            border: 1px solid rgba(194, 201, 187, 0.65);
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 0.93rem;
+            color: var(--texto);
+        }
+
+        .form-control:focus {
+            border-color: var(--verde-principal);
+            box-shadow: 0 0 0 3px rgba(21, 66, 18, 0.12);
+            background-color: white;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .form-control {
+            padding-right: 46px;
+        }
+
+        .btn-ver-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--texto-suave);
+            font-size: 1.05rem;
+        }
+
+        .btn-ver-password:hover {
+            color: var(--verde-principal);
+        }
+
+        .olvido {
+            color: var(--texto-suave);
+            font-size: 0.76rem;
+            text-decoration: none;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .olvido:hover {
+            color: var(--verde-principal);
+        }
+
+        .panel-seguro {
+            background: #fafaf8;
+            border: 1px solid rgba(194, 201, 187, 0.32);
+            border-radius: 12px;
+            padding: 13px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .panel-seguro i {
+            color: var(--verde-cta);
+            font-size: 1.1rem;
+            margin-top: 1px;
+        }
+
+        .panel-seguro strong {
+            display: block;
+            color: var(--verde-cta);
+            font-size: 0.74rem;
+            margin-bottom: 2px;
+        }
+
+        .panel-seguro span {
+            display: block;
+            color: var(--texto-suave);
+            font-size: 0.68rem;
+            line-height: 1.35;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: var(--verde-principal);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: 0.2s;
+            box-shadow: 0 10px 20px rgba(21, 66, 18, 0.18);
+        }
+
+        .btn-login:hover {
+            opacity: 0.93;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .login-footer {
+            border-top: 1px solid rgba(194, 201, 187, 0.28);
+            margin-top: 28px;
+            padding-top: 22px;
+            text-align: center;
+            color: var(--texto-suave);
+            font-size: 0.78rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .login-footer i {
+            color: #9b9f95;
+        }
+
+        .alert {
+            border-radius: 11px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .link-registro {
+            color: var(--verde-principal);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .link-registro:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="login-page">
+
+        <div class="decoracion-verde"></div>
+        <div class="decoracion-amarilla"></div>
+
+        <div class="login-card">
+
+            <div class="mb-4">
+                <a href="/" class="cancelar">
+                    <i class="bi bi-arrow-left"></i>
+                    Cancelar
+                </a>
+            </div>
+
+            <div class="text-center mb-4">
+                <div class="brand-icon">
+                    🌲
+                </div>
+
+                <h1 class="titulo-login mb-2">
+                    Iniciar Sesión
+                </h1>
+                <p class="subtitulo-login">
+                    Ingresa como cliente o registrate!
+                </p>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}">
+                Correo o contraseña incorrectos
+            </div>
+
+            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}">
+                Usuario registrado correctamente.
+            </div>
+
+            <form th:action="@{/login}" method="post" class="mt-4">
+
+                <div class="mb-3">
+                    <label for="correo" class="form-label">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" class="form-control" placeholder="correo@ejemplo.com"
+                        autocomplete="email" required>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="password" class="form-label mb-0">Contraseña</label>
+                        <a href="#" class="olvido">¿Olvidó contraseña?</a>
+                    </div>
+
+                    <div class="password-wrapper mt-2">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
+                            required>
+
+                        <button type="button" class="btn-ver-password"
+                            onclick="mostrarPassword('password', 'iconPassword')">
+                            <i id="iconPassword" class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-seguro mb-4">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <strong>Acceso al sistema</strong>
+                        <span>
+                            Registro seguro, rapido y sencillo!
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Iniciar Sesión
+                </button>
+
+            </form>
+
+            <div class="text-center mt-4">
+                <span class="text-muted small">¿No tienes cuenta?</span>
+                <a href="/registro" class="link-registro small ms-1"> ¡Registrarte!</a>
+            </div>
+
+            <div class="login-footer">
+                <i class="bi bi-question-circle"></i>
+                <span>¿Inquietudes con tu rol de artesano? Contacta a soporte.</span>
+            </div>
+
+        </div>
+
+    </section>
+
+    <script>
+        function mostrarPassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        }
+    </script>
+
+</body>
+
+</html>

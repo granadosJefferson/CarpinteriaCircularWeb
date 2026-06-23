@@ -1,0 +1,956 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de productos | Carpintería Circular 360</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --verde-principal: #3f5b45;
+            --verde-oscuro: #304837;
+            --verde-claro: #e9f0eb;
+            --madera: #765341;
+            --fondo: #f5f2ec;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--fondo);
+            color: #2f2f2f;
+        }
+
+        .navbar-administrativa {
+            background: linear-gradient(
+                135deg,
+                var(--verde-principal),
+                var(--verde-oscuro)
+            );
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-link {
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.88);
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .encabezado-pagina {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(63, 91, 69, 0.97),
+                    rgba(48, 72, 55, 0.95)
+                );
+            color: white;
+            border-radius: 1rem;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .tarjeta-filtros,
+        .tarjeta-tabla {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--verde-principal);
+            box-shadow: 0 0 0 0.25rem rgba(63, 91, 69, 0.16);
+        }
+
+        .btn-verde {
+            background-color: var(--verde-principal);
+            border-color: var(--verde-principal);
+            color: white;
+        }
+
+        .btn-verde:hover,
+        .btn-verde:focus {
+            background-color: var(--verde-oscuro);
+            border-color: var(--verde-oscuro);
+            color: white;
+        }
+
+        .btn-outline-verde {
+            border-color: var(--verde-principal);
+            color: var(--verde-principal);
+        }
+
+        .btn-outline-verde:hover {
+            background-color: var(--verde-principal);
+            border-color: var(--verde-principal);
+            color: white;
+        }
+
+        .tabla-productos thead th {
+            background-color: #e8dfd4;
+            color: #3f382f;
+            border-bottom: 0;
+            font-size: 0.87rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03rem;
+            white-space: nowrap;
+        }
+
+        .tabla-productos tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .tabla-productos tbody tr:hover {
+            background-color: #faf8f4;
+        }
+
+        .imagen-producto {
+            width: 64px;
+            height: 64px;
+            border: 1px solid #dedbd4;
+            border-radius: 0.75rem;
+            background-color: #eeeeee;
+            object-fit: cover;
+        }
+
+        .imagen-sin-producto {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            flex-shrink: 0;
+            border: 1px solid #dedbd4;
+            border-radius: 0.75rem;
+            background-color: #ece9e4;
+            color: #777777;
+            font-size: 1.5rem;
+        }
+
+        .nombre-producto {
+            color: var(--verde-principal);
+            font-weight: 700;
+        }
+
+        .codigo-producto {
+            color: #777777;
+            font-size: 0.78rem;
+        }
+
+        .badge-categoria {
+            background-color: #eee6dc;
+            color: #654b3c;
+            border: 1px solid #dfd1c2;
+        }
+
+        .badge-activo {
+            background-color: #dcefe1;
+            color: #24633a;
+        }
+
+        .badge-inactivo {
+            background-color: #f3dcdc;
+            color: #91352f;
+        }
+
+        .badge-disponible {
+            background-color: #dcefe1;
+            color: #24633a;
+        }
+
+        .badge-bajo {
+            background-color: #fff0c9;
+            color: #7a5908;
+        }
+
+        .badge-agotado {
+            background-color: #f3dcdc;
+            color: #91352f;
+        }
+
+        .contador-resultados {
+            color: var(--verde-principal);
+            font-weight: 700;
+        }
+
+        .acciones-producto {
+            min-width: 225px;
+        }
+
+        .estado-vacio {
+            border: 2px dashed #d4cec5;
+            border-radius: 1rem;
+            background-color: white;
+        }
+
+        .menu-movil {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        @media (max-width: 767px) {
+            .encabezado-pagina {
+                text-align: center;
+            }
+
+            .acciones-encabezado .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Barra de navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-administrativa">
+    <div class="container-fluid px-lg-4">
+
+        <a class="navbar-brand"
+           th:href="@{/admin}">
+            <i class="bi bi-tree-fill me-2"></i>
+            Carpintería Circular 360
+        </a>
+
+        <button class="navbar-toggler menu-movil"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menuAdministrativo"
+                aria-controls="menuAdministrativo"
+                aria-expanded="false"
+                aria-label="Abrir navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse"
+             id="menuAdministrativo">
+
+            <ul class="navbar-nav ms-auto gap-lg-1 mt-3 mt-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin}">
+                        <i class="bi bi-grid me-1"></i>
+                        Menú
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active"
+                       th:href="@{/admin/productos}">
+                        <i class="bi bi-box-seam me-1"></i>
+                        Productos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/clientes}">
+                        <i class="bi bi-people me-1"></i>
+                        Clientes
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/pedidos}">
+                        <i class="bi bi-receipt me-1"></i>
+                        Pedidos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/envios}">
+                        <i class="bi bi-truck me-1"></i>
+                        Envíos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/reportes}">
+                        <i class="bi bi-bar-chart me-1"></i>
+                        Reportes
+                    </a>
+                </li>
+
+                <li class="nav-item ms-lg-2">
+                    <a class="nav-link bg-danger text-white"
+                       th:href="@{/logout}">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        Cerrar sesión
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<main class="container-fluid px-3 px-lg-4 py-4">
+
+    <!-- Encabezado -->
+    <section class="encabezado-pagina p-4 p-lg-5 mb-4">
+
+        <div class="row align-items-center g-4">
+
+            <div class="col-lg-7">
+                <p class="mb-2 text-white-50 fw-semibold">
+                    Módulo administrativo
+                </p>
+
+                <h1 class="h2 fw-bold mb-2">
+                    Gestión de productos
+                </h1>
+
+                <p class="mb-0 text-white-50">
+                    Busca, filtra y administra fácilmente los productos
+                    disponibles en el sistema.
+                </p>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="acciones-encabezado d-flex flex-column flex-sm-row
+                            justify-content-lg-end gap-2">
+
+                    <a class="btn btn-light"
+                       th:href="@{/admin}">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Volver al menú
+                    </a>
+
+                    <a class="btn btn-warning fw-semibold"
+                       th:href="@{/admin/productos/nuevo}">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Registrar producto
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Mensajes -->
+    <div th:if="${mensaje}"
+         class="alert alert-success alert-dismissible fade show"
+         role="alert">
+
+        <i class="bi bi-check-circle-fill me-2"></i>
+
+        <span th:text="${mensaje}">
+            Operación realizada correctamente.
+        </span>
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Cerrar">
+        </button>
+    </div>
+
+    <div th:if="${error}"
+         class="alert alert-danger alert-dismissible fade show"
+         role="alert">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        <span th:text="${error}">
+            Ocurrió un error.
+        </span>
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Cerrar">
+        </button>
+    </div>
+
+    <!-- Sin productos -->
+    <section class="estado-vacio text-center p-5"
+             th:if="${#lists.isEmpty(productos)}">
+
+        <i class="bi bi-box-seam display-3 text-secondary"></i>
+
+        <h2 class="h4 mt-3">
+            No hay productos registrados
+        </h2>
+
+        <p class="text-secondary mb-4">
+            Registra el primer producto para comenzar a construir el catálogo.
+        </p>
+
+        <a class="btn btn-verde"
+           th:href="@{/admin/productos/nuevo}">
+            <i class="bi bi-plus-circle me-1"></i>
+            Registrar primer producto
+        </a>
+
+    </section>
+
+    <div th:unless="${#lists.isEmpty(productos)}">
+
+        <!-- Filtros -->
+        <section class="card tarjeta-filtros mb-4">
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-funnel-fill text-success"></i>
+
+                    <h2 class="h5 mb-0">
+                        Buscar y filtrar
+                    </h2>
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-12 col-lg-4">
+                        <label for="busqueda"
+                               class="form-label fw-semibold">
+                            Buscar producto
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <input id="busqueda"
+                                   class="form-control"
+                                   type="search"
+                                   placeholder="Nombre, ID o categoría..."
+                                   autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label for="filtroCategoria"
+                               class="form-label fw-semibold">
+                            Categoría
+                        </label>
+
+                        <select id="filtroCategoria"
+                                class="form-select">
+                            <option value="">
+                                Todas
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label for="filtroEstado"
+                               class="form-label fw-semibold">
+                            Estado
+                        </label>
+
+                        <select id="filtroEstado"
+                                class="form-select">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            <option value="activo">
+                                Activos
+                            </option>
+
+                            <option value="inactivo">
+                                Inactivos
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label for="filtroStock"
+                               class="form-label fw-semibold">
+                            Existencias
+                        </label>
+
+                        <select id="filtroStock"
+                                class="form-select">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            <option value="disponible">
+                                Disponible
+                            </option>
+
+                            <option value="bajo">
+                                Existencias bajas
+                            </option>
+
+                            <option value="agotado">
+                                Sin existencias
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-lg-2 d-flex align-items-end">
+                        <button id="limpiarFiltros"
+                                class="btn btn-outline-secondary w-100"
+                                type="button">
+
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>
+                            Limpiar
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Resumen -->
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center
+                    gap-2 mb-3">
+
+            <p class="mb-0 text-secondary">
+                Productos encontrados:
+
+                <span id="contadorResultados"
+                      class="contador-resultados"
+                      th:text="${#lists.size(productos)}">
+                    0
+                </span>
+            </p>
+
+            <small class="text-secondary">
+                <i class="bi bi-info-circle me-1"></i>
+                Se consideran existencias bajas cuando hay 5 unidades o menos.
+            </small>
+
+        </div>
+
+        <!-- Tabla -->
+        <section class="card tarjeta-tabla">
+
+            <div class="table-responsive">
+
+                <table id="tablaProductos"
+                       class="table tabla-productos align-middle mb-0">
+
+                    <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Existencias</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr class="fila-producto"
+                        th:each="producto : ${productos}"
+                        th:attr="
+                            data-id=${producto.id},
+                            data-nombre=${#strings.toLowerCase(producto.nombre)},
+                            data-categoria=${#strings.toLowerCase(producto.categoria)},
+                            data-estado=${producto.activo ? 'activo' : 'inactivo'},
+                            data-stock=${producto.cantidad == 0
+                                ? 'agotado'
+                                : (producto.cantidad <= 5
+                                    ? 'bajo'
+                                    : 'disponible')}
+                        ">
+
+                        <!-- Identificación -->
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+
+                                <img class="imagen-producto"
+                                     th:if="${producto.imagen != null
+                                         and !#strings.isEmpty(producto.imagen)}"
+                                     th:src="@{'/uploads/productos/' + ${producto.imagen}}"
+                                     th:alt="${producto.nombre}"
+                                     onerror="
+                                         this.style.display='none';
+                                         this.nextElementSibling.style.display='flex';
+                                     ">
+
+                                <div class="imagen-sin-producto"
+                                     th:style="${producto.imagen != null
+                                         and !#strings.isEmpty(producto.imagen)}
+                                         ? 'display:none'
+                                         : 'display:flex'">
+
+                                    <i class="bi bi-image"></i>
+                                </div>
+
+                                <div>
+                                    <div class="nombre-producto"
+                                         th:text="${producto.nombre}">
+                                        Producto
+                                    </div>
+
+                                    <div class="codigo-producto"
+                                         th:text="${'Código: PR-' + producto.id}">
+                                        Código: PR-1
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <!-- Categoría -->
+                        <td>
+                            <span class="badge rounded-pill badge-categoria"
+                                  th:text="${producto.categoria}">
+                                Categoría
+                            </span>
+                        </td>
+
+                        <!-- Precio -->
+                        <td class="fw-semibold"
+                            th:text="${'₡' + #numbers.formatDecimal(
+                                producto.precio,
+                                1,
+                                'COMMA',
+                                2,
+                                'POINT'
+                            )}">
+                            ₡0.00
+                        </td>
+
+                        <!-- Existencias -->
+                        <td>
+                            <div class="fw-bold mb-1"
+                                 th:text="${producto.cantidad}">
+                                0
+                            </div>
+
+                            <span class="badge rounded-pill badge-agotado"
+                                  th:if="${producto.cantidad == 0}">
+                                Sin existencias
+                            </span>
+
+                            <span class="badge rounded-pill badge-bajo"
+                                  th:if="${producto.cantidad > 0
+                                      and producto.cantidad <= 5}">
+                                Existencias bajas
+                            </span>
+
+                            <span class="badge rounded-pill badge-disponible"
+                                  th:if="${producto.cantidad > 5}">
+                                Disponible
+                            </span>
+                        </td>
+
+                        <!-- Estado -->
+                        <td>
+                            <span class="badge rounded-pill badge-activo"
+                                  th:if="${producto.activo}">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Activo
+                            </span>
+
+                            <span class="badge rounded-pill badge-inactivo"
+                                  th:unless="${producto.activo}">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Inactivo
+                            </span>
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="acciones-producto">
+                            <div class="d-flex justify-content-center
+                                        flex-wrap gap-2">
+
+                                <a class="btn btn-warning btn-sm"
+                                   th:href="@{/admin/productos/editar/{id}(
+                                       id=${producto.id}
+                                   )}"
+                                   title="Editar producto">
+
+                                    <i class="bi bi-pencil-square me-1"></i>
+                                    Editar
+                                </a>
+
+                                <form th:action="@{/admin/productos/estado/{id}(
+                                          id=${producto.id}
+                                      )}"
+                                      method="post">
+
+                                    <button class="btn btn-primary btn-sm"
+                                            type="submit"
+                                            th:title="${producto.activo
+                                                ? 'Desactivar producto'
+                                                : 'Activar producto'}">
+
+                                        <i th:class="${producto.activo
+                                            ? 'bi bi-toggle-on me-1'
+                                            : 'bi bi-toggle-off me-1'}">
+                                        </i>
+
+                                        <span th:text="${producto.activo
+                                            ? 'Desactivar'
+                                            : 'Activar'}">
+                                        </span>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/productos/eliminar/{id}(
+                                          id=${producto.id}
+                                      )}"
+                                      method="post"
+                                      onsubmit="return confirmarEliminacion(this);">
+
+                                    <button class="btn btn-danger btn-sm"
+                                            type="submit"
+                                            title="Eliminar producto">
+
+                                        <i class="bi bi-trash3 me-1"></i>
+                                        Eliminar
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- Mensaje cuando los filtros no encuentran resultados -->
+        <section id="mensajeSinResultados"
+                 class="estado-vacio text-center p-5 mt-4 d-none">
+
+            <i class="bi bi-search display-5 text-secondary"></i>
+
+            <h2 class="h5 mt-3">
+                No se encontraron productos
+            </h2>
+
+            <p class="text-secondary mb-3">
+                Intenta cambiar o limpiar los filtros seleccionados.
+            </p>
+
+            <button id="limpiarFiltrosVacio"
+                    class="btn btn-outline-verde"
+                    type="button">
+
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                Limpiar filtros
+            </button>
+
+        </section>
+
+    </div>
+
+</main>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const busqueda = document.getElementById("busqueda");
+        const filtroCategoria = document.getElementById("filtroCategoria");
+        const filtroEstado = document.getElementById("filtroEstado");
+        const filtroStock = document.getElementById("filtroStock");
+        const botonLimpiar = document.getElementById("limpiarFiltros");
+        const botonLimpiarVacio = document.getElementById("limpiarFiltrosVacio");
+        const contadorResultados = document.getElementById("contadorResultados");
+        const mensajeSinResultados = document.getElementById("mensajeSinResultados");
+        const tablaProductos = document.getElementById("tablaProductos");
+
+        const filas = Array.from(
+            document.querySelectorAll(".fila-producto")
+        );
+
+        cargarCategorias();
+        aplicarFiltros();
+
+        busqueda.addEventListener("input", aplicarFiltros);
+        filtroCategoria.addEventListener("change", aplicarFiltros);
+        filtroEstado.addEventListener("change", aplicarFiltros);
+        filtroStock.addEventListener("change", aplicarFiltros);
+
+        botonLimpiar.addEventListener("click", limpiarFiltros);
+
+        if (botonLimpiarVacio) {
+            botonLimpiarVacio.addEventListener("click", limpiarFiltros);
+        }
+
+        function cargarCategorias() {
+            const categorias = new Map();
+
+            filas.forEach(function (fila) {
+                const categoriaNormalizada =
+                    fila.dataset.categoria?.trim() || "";
+
+                const celdaCategoria =
+                    fila.querySelector(".badge-categoria");
+
+                const categoriaVisible =
+                    celdaCategoria?.textContent.trim() || "";
+
+                if (categoriaNormalizada && categoriaVisible) {
+                    categorias.set(
+                        categoriaNormalizada,
+                        categoriaVisible
+                    );
+                }
+            });
+
+            Array.from(categorias.entries())
+                .sort(function (a, b) {
+                    return a[1].localeCompare(
+                        b[1],
+                        "es",
+                        { sensitivity: "base" }
+                    );
+                })
+                .forEach(function ([valor, texto]) {
+                    const opcion = document.createElement("option");
+
+                    opcion.value = valor;
+                    opcion.textContent = texto;
+
+                    filtroCategoria.appendChild(opcion);
+                });
+        }
+
+        function aplicarFiltros() {
+            const textoBusqueda =
+                normalizarTexto(busqueda.value);
+
+            const categoriaSeleccionada =
+                filtroCategoria.value;
+
+            const estadoSeleccionado =
+                filtroEstado.value;
+
+            const stockSeleccionado =
+                filtroStock.value;
+
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const id = fila.dataset.id || "";
+                const nombre = fila.dataset.nombre || "";
+                const categoria = fila.dataset.categoria || "";
+                const estado = fila.dataset.estado || "";
+                const stock = fila.dataset.stock || "";
+
+                const coincideBusqueda =
+                    textoBusqueda === "" ||
+                    normalizarTexto(id).includes(textoBusqueda) ||
+                    normalizarTexto(nombre).includes(textoBusqueda) ||
+                    normalizarTexto(categoria).includes(textoBusqueda);
+
+                const coincideCategoria =
+                    categoriaSeleccionada === "" ||
+                    categoria === categoriaSeleccionada;
+
+                const coincideEstado =
+                    estadoSeleccionado === "" ||
+                    estado === estadoSeleccionado;
+
+                const coincideStock =
+                    stockSeleccionado === "" ||
+                    stock === stockSeleccionado;
+
+                const mostrar =
+                    coincideBusqueda &&
+                    coincideCategoria &&
+                    coincideEstado &&
+                    coincideStock;
+
+                fila.classList.toggle("d-none", !mostrar);
+
+                if (mostrar) {
+                    visibles++;
+                }
+            });
+
+            contadorResultados.textContent = visibles;
+
+            const sinResultados = visibles === 0;
+
+            tablaProductos.classList.toggle(
+                "d-none",
+                sinResultados
+            );
+
+            mensajeSinResultados.classList.toggle(
+                "d-none",
+                !sinResultados
+            );
+        }
+
+        function limpiarFiltros() {
+            busqueda.value = "";
+            filtroCategoria.value = "";
+            filtroEstado.value = "";
+            filtroStock.value = "";
+
+            aplicarFiltros();
+            busqueda.focus();
+        }
+
+        function normalizarTexto(texto) {
+            return String(texto || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+    });
+
+    function confirmarEliminacion(formulario) {
+        const fila = formulario.closest(".fila-producto");
+        const nombre =
+            fila?.querySelector(".nombre-producto")
+                ?.textContent
+                ?.trim() || "este producto";
+
+        return confirm(
+            "¿Desea eliminar el producto \"" +
+            nombre +
+            "\"?\n\n" +
+            "Esta acción no se puede deshacer."
+        );
+    }
+</script>
+
+</body>
+</html>

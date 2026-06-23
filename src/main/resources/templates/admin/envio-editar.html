@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Editar envío</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f1eb;
+            color: #2f2f2f;
+        }
+
+        header {
+            background-color: #3f5b45;
+            color: white;
+            padding: 22px 35px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .formulario {
+            background-color: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .formulario h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #3f5b45;
+        }
+
+        .informacion-pedido {
+            background-color: #eef2ed;
+            border-left: 5px solid #3f5b45;
+            padding: 15px;
+            border-radius: 7px;
+            margin-bottom: 24px;
+        }
+
+        .informacion-pedido p {
+            margin: 6px 0;
+        }
+
+        .campo {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: #3f5b45;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 15px;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3f5b45;
+            box-shadow: 0 0 0 3px rgba(63, 91, 69, 0.12);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .texto-ayuda {
+            display: block;
+            margin-top: 6px;
+            color: #666666;
+            font-size: 13px;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .boton {
+            display: inline-block;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            background-color: #3f5b45;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .boton:hover {
+            background-color: #314837;
+        }
+
+        .boton-secundario {
+            background-color: #777777;
+        }
+
+        .boton-secundario:hover {
+            background-color: #5f5f5f;
+        }
+
+        .mensaje-error {
+            background-color: #f5dcd9;
+            color: #8a332d;
+            padding: 14px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+        }
+
+        .mensaje-advertencia {
+            background-color: #fff2cc;
+            color: #725800;
+            padding: 14px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+        }
+
+        .error-campo {
+            display: block;
+            margin-top: 6px;
+            color: #a12720;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Editar envío</h1>
+</header>
+
+<main>
+
+    <section class="formulario">
+
+        <h2 th:text="${'Envío #' + envio.id}">
+            Envío
+        </h2>
+
+        <div class="informacion-pedido">
+            <p>
+                <strong>Pedido:</strong>
+                <span th:text="${envio.pedido != null
+                    ? '#' + envio.pedido.id
+                    : 'No disponible'}">
+                    #1
+                </span>
+            </p>
+
+            <p>
+                <strong>Cliente:</strong>
+                <span th:text="${envio.pedido != null
+                    and envio.pedido.cliente != null
+                    ? envio.pedido.cliente.nombre
+                    : 'Cliente no disponible'}">
+                    Cliente
+                </span>
+            </p>
+
+            <p>
+                <strong>Estado actual:</strong>
+                <span th:text="${#strings.replace(
+                    envio.estado.name(),
+                    '_',
+                    ' '
+                )}">
+                    PENDIENTE
+                </span>
+            </p>
+        </div>
+
+        <div th:if="${error}"
+             class="mensaje-error"
+             th:text="${error}">
+        </div>
+
+        <div th:if="${envio.estado.name() == 'ENTREGADO'
+                     or envio.estado.name() == 'CANCELADO'}"
+             class="mensaje-advertencia">
+            Este envío se encuentra en un estado final y ya no puede editarse.
+        </div>
+
+        <form th:if="${envio.estado.name() != 'ENTREGADO'
+                      and envio.estado.name() != 'CANCELADO'}"
+              th:action="@{/admin/envios/{id}/editar(id=${envio.id})}"
+              th:object="${envio}"
+              method="post"
+              onsubmit="return confirm('¿Desea guardar los cambios realizados?');">
+
+            <div class="campo">
+                <label for="direccionEntrega">
+                    Dirección de entrega
+                </label>
+
+                <textarea id="direccionEntrega"
+                          th:field="*{direccionEntrega}"
+                          minlength="5"
+                          maxlength="300"
+                          required></textarea>
+
+                <small class="texto-ayuda">
+                    Ingrese una dirección clara y completa.
+                </small>
+
+                <span class="error-campo"
+                      th:if="${#fields.hasErrors('direccionEntrega')}"
+                      th:errors="*{direccionEntrega}">
+                </span>
+            </div>
+
+            <div class="campo">
+                <label for="transportista">
+                    Transportista o encargado
+                </label>
+
+                <input id="transportista"
+                       type="text"
+                       th:field="*{transportista}"
+                       maxlength="120">
+
+                <span class="error-campo"
+                      th:if="${#fields.hasErrors('transportista')}"
+                      th:errors="*{transportista}">
+                </span>
+            </div>
+
+            <div class="campo">
+                <label for="numeroSeguimiento">
+                    Número de seguimiento
+                </label>
+
+                <input id="numeroSeguimiento"
+                       type="text"
+                       th:field="*{numeroSeguimiento}"
+                       maxlength="100">
+
+                <small class="texto-ayuda">
+                    Puede dejarse vacío si el envío todavía no tiene un número asignado.
+                </small>
+
+                <span class="error-campo"
+                      th:if="${#fields.hasErrors('numeroSeguimiento')}"
+                      th:errors="*{numeroSeguimiento}">
+                </span>
+            </div>
+
+            <div class="campo">
+                <label for="observaciones">
+                    Observaciones
+                </label>
+
+                <textarea id="observaciones"
+                          th:field="*{observaciones}"
+                          maxlength="500"></textarea>
+
+                <span class="error-campo"
+                      th:if="${#fields.hasErrors('observaciones')}"
+                      th:errors="*{observaciones}">
+                </span>
+            </div>
+
+            <div class="acciones">
+
+                <button class="boton"
+                        type="submit">
+                    Guardar cambios
+                </button>
+
+                <a class="boton boton-secundario"
+                   th:href="@{/admin/envios/{id}(id=${envio.id})}">
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+        <div class="acciones"
+             th:if="${envio.estado.name() == 'ENTREGADO'
+                      or envio.estado.name() == 'CANCELADO'}">
+
+            <a class="boton boton-secundario"
+               th:href="@{/admin/envios/{id}(id=${envio.id})}">
+                Volver al detalle
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>

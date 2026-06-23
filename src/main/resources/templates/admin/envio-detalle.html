@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Detalle del envío - Carpintería Circular 360</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f1eb;
+            color: #2f2f2f;
+        }
+
+        header {
+            background-color: #3f5b45;
+            color: white;
+            padding: 22px 35px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin: 6px 0 0;
+            color: #dce8df;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .tarjeta {
+            background-color: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+
+        .tarjeta h2 {
+            margin-top: 0;
+            color: #3f5b45;
+        }
+
+        .datos {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .dato strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #3f5b45;
+        }
+
+        .dato p {
+            margin: 0;
+            color: #555555;
+            line-height: 1.5;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .estado-PENDIENTE {
+            background-color: #fff0cc;
+            color: #8a5c00;
+        }
+
+        .estado-PREPARANDO {
+            background-color: #ebe6ff;
+            color: #51428b;
+        }
+
+        .estado-EN_CAMINO {
+            background-color: #dcecff;
+            color: #245c91;
+        }
+
+        .estado-ENTREGADO {
+            background-color: #dcefe2;
+            color: #24663a;
+        }
+
+        .estado-CANCELADO {
+            background-color: #f5dcd9;
+            color: #8a332d;
+        }
+
+        .formulario-estado {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            color: #3f5b45;
+            font-weight: bold;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            min-width: 220px;
+            background-color: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3f5b45;
+            box-shadow: 0 0 0 3px rgba(63, 91, 69, 0.12);
+        }
+
+        .boton {
+            display: inline-block;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            background-color: #3f5b45;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .boton:hover {
+            background-color: #304a37;
+        }
+
+        .boton-editar {
+            background-color: #326ea8;
+        }
+
+        .boton-editar:hover {
+            background-color: #265782;
+        }
+
+        .boton-volver {
+            background-color: #777777;
+        }
+
+        .boton-volver:hover {
+            background-color: #5f5f5f;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .mensaje {
+            padding: 14px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+        }
+
+        .mensaje-exito {
+            background-color: #dcefe2;
+            color: #24663a;
+        }
+
+        .mensaje-error {
+            background-color: #f5dcd9;
+            color: #8a332d;
+        }
+
+        .mensaje-finalizado {
+            background-color: #eef2ed;
+            color: #3f5b45;
+            padding: 15px;
+            border-radius: 7px;
+            line-height: 1.5;
+        }
+
+        .texto-largo {
+            white-space: pre-line;
+            line-height: 1.6;
+            color: #555555;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 20px;
+            }
+
+            .tarjeta {
+                padding: 22px;
+            }
+
+            .formulario-estado {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            select,
+            .boton {
+                width: 100%;
+            }
+
+            .acciones {
+                flex-direction: column;
+            }
+
+            .acciones .boton {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Detalle del envío</h1>
+    <p>Carpintería Circular 360</p>
+</header>
+
+<main>
+
+    <div th:if="${mensaje}"
+         class="mensaje mensaje-exito"
+         th:text="${mensaje}">
+        Operación realizada correctamente.
+    </div>
+
+    <div th:if="${error}"
+         class="mensaje mensaje-error"
+         th:text="${error}">
+        Ocurrió un error.
+    </div>
+
+    <section class="tarjeta">
+
+        <h2 th:text="${'Envío #' + envio.id}">
+            Envío
+        </h2>
+
+        <div class="datos">
+
+            <div class="dato">
+                <strong>Pedido</strong>
+
+                <p th:text="${'#' + envio.pedido.id}">
+                    #1
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Cliente</strong>
+
+                <p th:text="${envio.pedido.cliente != null
+                    ? envio.pedido.cliente.nombre
+                    : 'Sin cliente'}">
+                    Cliente
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Total del pedido</strong>
+
+                <p th:text="${'₡'
+                    + #numbers.formatDecimal(
+                        envio.pedido.total,
+                        1,
+                        'COMMA',
+                        2,
+                        'POINT'
+                    )}">
+                    ₡0.00
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Estado</strong>
+
+                <p>
+                    <span class="estado"
+                          th:classappend="${' estado-'
+                              + envio.estado.name()}"
+                          th:text="${#strings.replace(
+                              envio.estado.name(),
+                              '_',
+                              ' '
+                          )}">
+                        PENDIENTE
+                    </span>
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Fecha de registro</strong>
+
+                <p th:text="${#temporals.format(
+                        envio.fechaRegistro,
+                        'dd/MM/yyyy HH:mm'
+                    )}">
+                    Fecha
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Fecha de salida</strong>
+
+                <p th:text="${envio.fechaEnvio != null
+                    ? #temporals.format(
+                        envio.fechaEnvio,
+                        'dd/MM/yyyy HH:mm'
+                      )
+                    : 'Todavía no enviado'}">
+                    Sin fecha
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Fecha de entrega</strong>
+
+                <p th:text="${envio.fechaEntrega != null
+                    ? #temporals.format(
+                        envio.fechaEntrega,
+                        'dd/MM/yyyy HH:mm'
+                      )
+                    : 'Todavía no entregado'}">
+                    Sin fecha
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Transportista</strong>
+
+                <p th:text="${envio.transportista != null
+                    ? envio.transportista
+                    : 'Sin asignar'}">
+                    Sin asignar
+                </p>
+            </div>
+
+            <div class="dato">
+                <strong>Número de seguimiento</strong>
+
+                <p th:text="${envio.numeroSeguimiento != null
+                    ? envio.numeroSeguimiento
+                    : 'Sin número'}">
+                    Sin número
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="tarjeta">
+
+        <h2>Dirección de entrega</h2>
+
+        <p class="texto-largo"
+           th:text="${envio.direccionEntrega}">
+            Dirección
+        </p>
+
+    </section>
+
+    <section class="tarjeta">
+
+        <h2>Observaciones</h2>
+
+        <p class="texto-largo"
+           th:text="${envio.observaciones != null
+               ? envio.observaciones
+               : 'Sin observaciones'}">
+            Sin observaciones
+        </p>
+
+    </section>
+
+    <section class="tarjeta"
+             th:if="${!#lists.isEmpty(estadosDisponibles)}">
+
+        <h2>Actualizar estado</h2>
+
+        <form class="formulario-estado"
+              th:action="@{/admin/envios/{id}/estado(
+                  id=${envio.id}
+              )}"
+              method="post">
+
+            <div class="campo">
+
+                <label for="estado">
+                    Nuevo estado
+                </label>
+
+                <select id="estado"
+                        name="estado"
+                        required>
+
+                    <option value="">
+                        Seleccione un estado
+                    </option>
+
+                    <option th:each="estado : ${estadosDisponibles}"
+                            th:value="${estado}"
+                            th:text="${#strings.replace(
+                                estado.name(),
+                                '_',
+                                ' '
+                            )}">
+                        Estado
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button class="boton"
+                    type="submit">
+                Actualizar estado
+            </button>
+
+        </form>
+
+    </section>
+
+    <section class="tarjeta"
+             th:if="${#lists.isEmpty(estadosDisponibles)}">
+
+        <h2>Estado final</h2>
+
+        <div class="mensaje-finalizado"
+             th:text="${envio.estado.name() == 'ENTREGADO'
+                 ? 'Este envío ya fue entregado y no puede cambiar de estado.'
+                 : 'Este envío fue cancelado y no puede cambiar de estado.'}">
+            El envío no puede cambiar de estado.
+        </div>
+
+    </section>
+
+    <div class="acciones">
+
+        <a class="boton boton-editar"
+           th:href="@{/admin/envios/{id}/editar(
+               id=${envio.id}
+           )}">
+            Editar información
+        </a>
+
+        <a class="boton boton-volver"
+           th:href="@{/admin/envios}">
+            Volver a envíos
+        </a>
+
+    </div>
+
+</main>
+
+</body>
+</html>

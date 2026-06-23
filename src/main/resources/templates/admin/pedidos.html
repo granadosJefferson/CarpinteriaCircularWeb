@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de pedidos | Carpintería Circular 360</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --verde-principal: #3f5b45;
+            --verde-oscuro: #304837;
+            --verde-claro: #e9f0eb;
+            --madera: #765341;
+            --fondo: #f5f2ec;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--fondo);
+            color: #2f2f2f;
+        }
+
+        .navbar-administrativa {
+            background: linear-gradient(
+                135deg,
+                var(--verde-principal),
+                var(--verde-oscuro)
+            );
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-link {
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.88);
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .encabezado-pagina {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(63, 91, 69, 0.97),
+                    rgba(48, 72, 55, 0.95)
+                );
+            color: white;
+            border-radius: 1rem;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .tarjeta-filtros,
+        .tarjeta-tabla {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--verde-principal);
+            box-shadow: 0 0 0 0.25rem rgba(63, 91, 69, 0.16);
+        }
+
+        .btn-verde {
+            background-color: var(--verde-principal);
+            border-color: var(--verde-principal);
+            color: white;
+        }
+
+        .btn-verde:hover,
+        .btn-verde:focus {
+            background-color: var(--verde-oscuro);
+            border-color: var(--verde-oscuro);
+            color: white;
+        }
+
+        .btn-outline-verde {
+            border-color: var(--verde-principal);
+            color: var(--verde-principal);
+        }
+
+        .btn-outline-verde:hover {
+            background-color: var(--verde-principal);
+            border-color: var(--verde-principal);
+            color: white;
+        }
+
+        .tabla-pedidos thead th {
+            background-color: #e8dfd4;
+            color: #3f382f;
+            border-bottom: 0;
+            font-size: 0.87rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03rem;
+            white-space: nowrap;
+        }
+
+        .tabla-pedidos tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .tabla-pedidos tbody tr:hover {
+            background-color: #faf8f4;
+        }
+
+        .codigo-pedido {
+            color: var(--verde-principal);
+            font-weight: 700;
+        }
+
+        .dato-secundario {
+            color: #777777;
+            font-size: 0.82rem;
+        }
+
+        .badge-productos {
+            background-color: #eee6dc;
+            color: #654b3c;
+            border: 1px solid #dfd1c2;
+        }
+
+        .badge-pendiente {
+            background-color: #fff0c9;
+            color: #7a5908;
+        }
+
+        .badge-proceso {
+            background-color: #dce9f7;
+            color: #315d82;
+        }
+
+        .badge-completado {
+            background-color: #dcefe1;
+            color: #24633a;
+        }
+
+        .badge-cancelado {
+            background-color: #f3dcdc;
+            color: #91352f;
+        }
+
+        .contador-resultados {
+            color: var(--verde-principal);
+            font-weight: 700;
+        }
+
+        .acciones-pedido {
+            min-width: 255px;
+        }
+
+        .formulario-estado {
+            min-width: 230px;
+        }
+
+        .estado-vacio {
+            border: 2px dashed #d4cec5;
+            border-radius: 1rem;
+            background-color: white;
+        }
+
+        .menu-movil {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        @media (max-width: 767px) {
+            .encabezado-pagina {
+                text-align: center;
+            }
+
+            .acciones-encabezado .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-administrativa">
+    <div class="container-fluid px-lg-4">
+
+        <a class="navbar-brand" th:href="@{/admin}">
+            <i class="bi bi-tree-fill me-2"></i>
+            Carpintería Circular 360
+        </a>
+
+        <button class="navbar-toggler menu-movil"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menuAdministrativo"
+                aria-controls="menuAdministrativo"
+                aria-expanded="false"
+                aria-label="Abrir navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuAdministrativo">
+            <ul class="navbar-nav ms-auto gap-lg-1 mt-3 mt-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin}">
+                        <i class="bi bi-grid me-1"></i>
+                        Menú
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/productos}">
+                        <i class="bi bi-box-seam me-1"></i>
+                        Productos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/clientes}">
+                        <i class="bi bi-people me-1"></i>
+                        Clientes
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active"
+                       aria-current="page"
+                       th:href="@{/admin/pedidos}">
+                        <i class="bi bi-receipt me-1"></i>
+                        Pedidos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/envios}">
+                        <i class="bi bi-truck me-1"></i>
+                        Envíos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/reportes}">
+                        <i class="bi bi-bar-chart me-1"></i>
+                        Reportes
+                    </a>
+                </li>
+
+                <li class="nav-item ms-lg-2">
+                    <a class="nav-link bg-danger text-white" th:href="@{/logout}">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        Cerrar sesión
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container-fluid px-3 px-lg-4 py-4">
+
+    <section class="encabezado-pagina p-4 p-lg-5 mb-4">
+        <div class="row align-items-center g-4">
+
+            <div class="col-lg-7">
+                <p class="mb-2 text-white-50 fw-semibold">
+                    Módulo administrativo
+                </p>
+
+                <h1 class="h2 fw-bold mb-2">
+                    Gestión de pedidos
+                </h1>
+
+                <p class="mb-0 text-white-50">
+                    Busca, filtra y administra fácilmente los pedidos registrados en el sistema.
+                </p>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="acciones-encabezado d-flex flex-column flex-sm-row justify-content-lg-end gap-2">
+
+                    <a class="btn btn-light" th:href="@{/admin}">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Volver al menú
+                    </a>
+
+                    <a class="btn btn-warning fw-semibold" th:href="@{/admin/pedidos/nuevo}">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Registrar pedido
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <div th:if="${mensaje}"
+         class="alert alert-success alert-dismissible fade show"
+         role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${mensaje}">Operación realizada correctamente.</span>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Cerrar"></button>
+    </div>
+
+    <div th:if="${error}"
+         class="alert alert-danger alert-dismissible fade show"
+         role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${error}">Ocurrió un error.</span>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Cerrar"></button>
+    </div>
+
+    <section class="estado-vacio text-center p-5"
+             th:if="${pedidos == null or #lists.isEmpty(pedidos)}">
+
+        <i class="bi bi-receipt-cutoff display-3 text-secondary"></i>
+
+        <h2 class="h4 mt-3">
+            No hay pedidos registrados
+        </h2>
+
+        <p class="text-secondary mb-4">
+            Registra el primer pedido seleccionando un cliente y uno o varios productos.
+        </p>
+
+        <a class="btn btn-verde" th:href="@{/admin/pedidos/nuevo}">
+            <i class="bi bi-plus-circle me-1"></i>
+            Registrar primer pedido
+        </a>
+    </section>
+
+    <div th:if="${pedidos != null and !#lists.isEmpty(pedidos)}">
+
+        <section class="card tarjeta-filtros mb-4">
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-funnel-fill text-success"></i>
+                    <h2 class="h5 mb-0">Buscar y filtrar</h2>
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-12 col-lg-6">
+                        <label for="busqueda" class="form-label fw-semibold">
+                            Buscar pedido
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <input id="busqueda"
+                                   class="form-control"
+                                   type="search"
+                                   placeholder="Código, cliente, correo o estado..."
+                                   autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <label for="filtroEstado" class="form-label fw-semibold">
+                            Estado
+                        </label>
+
+                        <select id="filtroEstado" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="EN_PROCESO">En proceso</option>
+                            <option value="COMPLETADO">Completado</option>
+                            <option value="CANCELADO">Cancelado</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3 d-flex align-items-end">
+                        <button id="limpiarFiltros"
+                                class="btn btn-outline-verde w-100"
+                                type="button">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>
+                            Limpiar
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+            <p class="mb-0 text-secondary">
+                Pedidos encontrados:
+                <span id="contadorResultados"
+                      class="contador-resultados"
+                      th:text="${#lists.size(pedidos)}">0</span>
+            </p>
+
+            <small class="text-secondary">
+                <i class="bi bi-info-circle me-1"></i>
+                Puedes consultar el detalle, actualizar el estado o registrar el envío.
+            </small>
+        </div>
+
+        <section class="card tarjeta-tabla">
+            <div class="table-responsive">
+
+                <table id="tablaPedidos"
+                       class="table tabla-pedidos align-middle mb-0">
+
+                    <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Actualizar estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr class="fila-pedido"
+                        th:each="pedido : ${pedidos}"
+                        th:attr="
+                            data-id=${pedido.id},
+                            data-estado=${pedido.estado != null ? pedido.estado.name() : 'SIN_ESTADO'},
+                            data-cliente=${pedido.cliente != null ? #strings.toLowerCase(pedido.cliente.nombre) : ''},
+                            data-correo=${pedido.cliente != null ? #strings.toLowerCase(pedido.cliente.correo) : ''}
+                        ">
+
+                        <td>
+                            <div class="codigo-pedido" th:text="${'PE-' + pedido.id}">
+                                PE-1
+                            </div>
+                            <div class="dato-secundario">Código del pedido</div>
+                        </td>
+
+                        <td>
+                            <span th:if="${pedido.fecha != null}"
+                                  th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}">
+                                21/06/2026 10:30
+                            </span>
+
+                            <span class="text-secondary" th:if="${pedido.fecha == null}">
+                                Sin fecha
+                            </span>
+                        </td>
+
+                        <td>
+                            <div th:if="${pedido.cliente != null}">
+                                <div class="fw-bold" th:text="${pedido.cliente.nombre}">
+                                    Cliente
+                                </div>
+                                <div class="dato-secundario" th:text="${pedido.cliente.correo}">
+                                    correo@ejemplo.com
+                                </div>
+                            </div>
+
+                            <span class="text-secondary" th:if="${pedido.cliente == null}">
+                                Sin cliente
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="badge rounded-pill badge-productos"
+                                  th:text="${pedido.detalles != null ? #lists.size(pedido.detalles) + ' producto(s)' : '0 productos'}">
+                                0 productos
+                            </span>
+                        </td>
+
+                        <td class="fw-semibold"
+                            th:text="${pedido.total != null
+                                ? '₡' + #numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')
+                                : '₡0.00'}">
+                            ₡0.00
+                        </td>
+
+                        <td>
+                            <span class="badge rounded-pill badge-pendiente"
+                                  th:if="${pedido.estado != null and pedido.estado.name() == 'PENDIENTE'}">
+                                <i class="bi bi-hourglass-split me-1"></i>
+                                Pendiente
+                            </span>
+
+                            <span class="badge rounded-pill badge-proceso"
+                                  th:if="${pedido.estado != null and pedido.estado.name() == 'EN_PROCESO'}">
+                                <i class="bi bi-tools me-1"></i>
+                                En proceso
+                            </span>
+
+                            <span class="badge rounded-pill badge-completado"
+                                  th:if="${pedido.estado != null and pedido.estado.name() == 'COMPLETADO'}">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Completado
+                            </span>
+
+                            <span class="badge rounded-pill badge-cancelado"
+                                  th:if="${pedido.estado != null and pedido.estado.name() == 'CANCELADO'}">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Cancelado
+                            </span>
+
+                            <span class="badge rounded-pill text-bg-secondary"
+                                  th:if="${pedido.estado == null}">
+                                Sin estado
+                            </span>
+                        </td>
+
+                        <td>
+                            <form class="d-flex gap-2 formulario-estado"
+                                  th:action="@{/admin/pedidos/estado/{id}(id=${pedido.id})}"
+                                  method="post">
+
+                                <select class="form-select form-select-sm"
+                                        name="estado"
+                                        aria-label="Seleccionar estado"
+                                        required>
+                                    <option value="">Seleccionar</option>
+
+                                    <option th:each="estado : ${estados}"
+                                            th:value="${estado}"
+                                            th:text="${#strings.replace(estado.name(), '_', ' ')}"
+                                            th:selected="${pedido.estado == estado}">
+                                    </option>
+                                </select>
+
+                                <button class="btn btn-primary btn-sm"
+                                        type="submit"
+                                        title="Actualizar estado">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </form>
+                        </td>
+
+                        <td class="acciones-pedido">
+                            <div class="d-flex justify-content-center flex-wrap gap-2">
+
+                                <a class="btn btn-warning btn-sm"
+                                   th:href="@{/admin/pedidos/ver/{id}(id=${pedido.id})}"
+                                   title="Ver detalle del pedido">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Ver detalle
+                                </a>
+
+                                <a class="btn btn-outline-verde btn-sm"
+                                   th:href="@{/admin/envios/nuevo(pedidoId=${pedido.id})}"
+                                   th:if="${pedido.estado != null and pedido.estado.name() != 'CANCELADO'}"
+                                   title="Registrar envío">
+                                    <i class="bi bi-truck me-1"></i>
+                                    Envío
+                                </a>
+
+                                <span class="text-secondary small align-self-center"
+                                      th:if="${pedido.estado != null and pedido.estado.name() == 'CANCELADO'}">
+                                    Envío no disponible
+                                </span>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </section>
+
+        <section id="mensajeSinResultados"
+                 class="estado-vacio text-center p-5 mt-4 d-none">
+
+            <i class="bi bi-search display-5 text-secondary"></i>
+
+            <h2 class="h5 mt-3">
+                No se encontraron pedidos
+            </h2>
+
+            <p class="text-secondary mb-3">
+                Intenta cambiar o limpiar los filtros seleccionados.
+            </p>
+
+            <button id="limpiarFiltrosVacio"
+                    class="btn btn-outline-verde"
+                    type="button">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                Limpiar filtros
+            </button>
+        </section>
+
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const busqueda = document.getElementById("busqueda");
+        const filtroEstado = document.getElementById("filtroEstado");
+        const botonLimpiar = document.getElementById("limpiarFiltros");
+        const botonLimpiarVacio = document.getElementById("limpiarFiltrosVacio");
+        const contadorResultados = document.getElementById("contadorResultados");
+        const mensajeSinResultados = document.getElementById("mensajeSinResultados");
+        const tablaPedidos = document.getElementById("tablaPedidos");
+
+        const filas = Array.from(document.querySelectorAll(".fila-pedido"));
+
+        if (!busqueda || !filtroEstado || filas.length === 0) {
+            return;
+        }
+
+        aplicarFiltros();
+
+        busqueda.addEventListener("input", aplicarFiltros);
+        filtroEstado.addEventListener("change", aplicarFiltros);
+
+        if (botonLimpiar) {
+            botonLimpiar.addEventListener("click", limpiarFiltros);
+        }
+
+        if (botonLimpiarVacio) {
+            botonLimpiarVacio.addEventListener("click", limpiarFiltros);
+        }
+
+        function aplicarFiltros() {
+            const textoBusqueda = normalizarTexto(busqueda.value);
+            const estadoSeleccionado = filtroEstado.value;
+            let visibles = 0;
+
+            filas.forEach(function (fila) {
+                const id = fila.dataset.id || "";
+                const cliente = fila.dataset.cliente || "";
+                const correo = fila.dataset.correo || "";
+                const estado = fila.dataset.estado || "";
+
+                const coincideBusqueda =
+                    textoBusqueda === "" ||
+                    normalizarTexto(id).includes(textoBusqueda) ||
+                    normalizarTexto("PE-" + id).includes(textoBusqueda) ||
+                    normalizarTexto(cliente).includes(textoBusqueda) ||
+                    normalizarTexto(correo).includes(textoBusqueda) ||
+                    normalizarTexto(estado).includes(textoBusqueda);
+
+                const coincideEstado =
+                    estadoSeleccionado === "" ||
+                    estado === estadoSeleccionado;
+
+                const mostrar = coincideBusqueda && coincideEstado;
+                fila.classList.toggle("d-none", !mostrar);
+
+                if (mostrar) {
+                    visibles++;
+                }
+            });
+
+            if (contadorResultados) {
+                contadorResultados.textContent = visibles;
+            }
+
+            if (tablaPedidos) {
+                tablaPedidos.closest(".tarjeta-tabla")
+                    ?.classList.toggle("d-none", visibles === 0);
+            }
+
+            if (mensajeSinResultados) {
+                mensajeSinResultados.classList.toggle("d-none", visibles !== 0);
+            }
+        }
+
+        function limpiarFiltros() {
+            busqueda.value = "";
+            filtroEstado.value = "";
+            aplicarFiltros();
+            busqueda.focus();
+        }
+
+        function normalizarTexto(texto) {
+            return String(texto || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+    });
+</script>
+
+</body>
+</html>

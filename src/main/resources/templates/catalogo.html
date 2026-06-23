@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos - Carpintería Circular 360</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Literata:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --verde-principal: #154212;
+            --verde-claro: #bcf0ae;
+            --verde-cta: #2d5a27;
+            --texto: #1a1c1c;
+            --texto-suave: #42493e;
+            --amarillo: #EAB308;
+            --marron: #77574d;
+            --gris-fondo: #f9f9f9;
+            --gris-borde: #c2c9bb;
+        }
+
+        body {
+            margin: 0;
+            background: var(--gris-fondo);
+            color: var(--texto);
+            font-family: "Hanken Grotesk", Arial, sans-serif;
+        }
+
+        h1, h2, h3, .font-serif {
+            font-family: "Literata", Georgia, serif;
+        }
+
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(194, 201, 187, 0.35);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .brand-logo {
+            color: var(--verde-principal);
+            font-family: "Literata", Georgia, serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(188, 240, 174, 0.35);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .nav-link {
+            color: var(--texto-suave);
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--verde-principal) !important;
+        }
+
+        .nav-link.active {
+            border-bottom: 2px solid var(--verde-principal);
+        }
+
+        .btn-login-nav {
+            background-color: var(--verde-principal);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-decoration: none;
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .btn-login-nav:hover {
+            color: white;
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .catalog-hero {
+            padding: 70px 0 35px;
+        }
+
+        .badge-catalogo {
+            color: var(--verde-cta);
+            background: rgba(188, 240, 174, 0.45);
+            border: 1px solid rgba(45, 90, 39, 0.12);
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .catalog-title {
+            color: var(--texto);
+            font-size: clamp(2.2rem, 5vw, 4rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            margin-top: 20px;
+        }
+
+        .catalog-text {
+            color: var(--texto-suave);
+            max-width: 720px;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .cta-presupuesto {
+            background: var(--verde-cta);
+            color: white;
+            border-radius: 18px;
+            padding: 28px;
+            border: 1px solid rgba(21, 66, 18, 0.2);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .cta-presupuesto h3 {
+            color: var(--verde-claro);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .cta-presupuesto p {
+            color: rgba(255, 255, 255, 0.86);
+            font-weight: 300;
+            margin-bottom: 0;
+        }
+
+        .btn-yellow {
+            background-color: var(--amarillo);
+            color: var(--marron);
+            border: none;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-yellow:hover {
+            color: var(--marron);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 18px rgba(0, 0, 0, 0.14);
+        }
+
+        .filters-bar {
+            border-bottom: 1px solid rgba(194, 201, 187, 0.25);
+            padding-bottom: 18px;
+            margin-bottom: 32px;
+        }
+
+        .filter-btn {
+            border: 1px solid rgba(194, 201, 187, 0.45);
+            background: white;
+            color: var(--texto-suave);
+            border-radius: 10px;
+            padding: 9px 16px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--verde-principal);
+            color: white;
+            border-color: var(--verde-principal);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--texto-suave);
+        }
+
+        .search-box input {
+            background: white;
+            border: 1px solid rgba(194, 201, 187, 0.55);
+            border-radius: 10px;
+            padding: 11px 14px 11px 42px;
+            min-width: 280px;
+            font-size: 0.92rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--verde-principal);
+            box-shadow: 0 0 0 3px rgba(21, 66, 18, 0.1);
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid rgba(194, 201, 187, 0.25);
+            overflow: hidden;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.035);
+            transition: 0.28s ease;
+            animation: aparecer 0.45s ease both;
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 34px rgba(0, 0, 0, 0.12);
+        }
+
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-img-wrap {
+            position: relative;
+            aspect-ratio: 16 / 10;
+            background: #eee;
+            overflow: hidden;
+        }
+
+        .product-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: 0.55s ease;
+        }
+
+        .product-card:hover .product-img-wrap img {
+            transform: scale(1.05);
+        }
+
+        .category-pill {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: rgba(188, 240, 174, 0.92);
+            color: var(--verde-principal);
+            border: 1px solid rgba(21, 66, 18, 0.15);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .pedido-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pedido-overlay span {
+            background: white;
+            color: #b91c1c;
+            border-radius: 10px;
+            padding: 9px 15px;
+            font-size: 0.74rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .product-body {
+            padding: 24px;
+        }
+
+        .product-name {
+            font-family: "Literata", Georgia, serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 0;
+            transition: 0.2s;
+        }
+
+        .product-card:hover .product-name {
+            color: var(--verde-principal);
+        }
+
+        .product-price {
+            color: var(--verde-cta);
+            font-size: 1.3rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .product-desc {
+            color: var(--texto-suave);
+            font-size: 0.86rem;
+            font-weight: 300;
+            line-height: 1.65;
+            margin-top: 12px;
+            min-height: 68px;
+        }
+
+        .product-footer {
+            border-top: 1px solid rgba(194, 201, 187, 0.18);
+            padding-top: 15px;
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stock {
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .stock-ok {
+            color: #047857;
+        }
+
+        .stock-pedido {
+            color: var(--marron);
+            font-style: italic;
+        }
+
+        .btn-solicitar {
+            background: #f5f5f4;
+            color: var(--texto-suave);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .btn-solicitar:hover {
+            background: rgba(188, 240, 174, 0.35);
+            color: var(--verde-principal);
+        }
+
+        .catalog-footer {
+            background: #f1f1ef;
+            border-top: 1px solid rgba(194, 201, 187, 0.35);
+            margin-top: 80px;
+            padding: 45px 0;
+            color: var(--texto-suave);
+            font-size: 0.82rem;
+        }
+
+        .catalog-footer strong {
+            color: var(--verde-principal);
+        }
+
+
+        /* Vista rápida del producto */
+        .product-card.producto-vista {
+            cursor: pointer;
+            outline: none;
+        }
+
+        .product-card.producto-vista:focus-visible {
+            box-shadow: 0 0 0 4px rgba(21, 66, 18, 0.30),
+                        0 16px 34px rgba(33, 46, 31, 0.16);
+        }
+
+        .product-card.producto-vista .product-img-wrap::after {
+            content: "\F52A";
+            font-family: "bootstrap-icons";
+            position: absolute;
+            right: 14px;
+            bottom: 14px;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.94);
+            color: var(--verde-principal);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+            transition: 0.2s ease;
+            z-index: 4;
+        }
+
+        .product-card.producto-vista:hover .product-img-wrap::after {
+            transform: scale(1.08);
+        }
+
+        .modal-producto .modal-content {
+            border: 0;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+        }
+
+        .modal-producto .modal-header {
+            border-bottom: 1px solid rgba(194, 201, 187, 0.32);
+            padding: 18px 22px;
+        }
+
+        .modal-producto-img {
+            width: 100%;
+            height: 100%;
+            min-height: 430px;
+            object-fit: cover;
+            background: #efefec;
+        }
+
+        .modal-producto-info {
+            padding: 34px;
+        }
+
+        .modal-producto-categoria {
+            display: inline-flex;
+            color: var(--verde-principal);
+            background: rgba(188, 240, 174, 0.42);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .modal-producto-titulo {
+            color: var(--texto);
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            margin: 18px 0 12px;
+        }
+
+        .modal-producto-precio {
+            color: var(--verde-cta);
+            font-size: 1.65rem;
+            font-weight: 800;
+        }
+
+        .modal-producto-descripcion {
+            color: var(--texto-suave);
+            line-height: 1.75;
+            margin: 22px 0;
+            white-space: pre-line;
+        }
+
+        .modal-producto-stock {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            border: 0;
+            border-radius: 11px;
+            padding: 13px 18px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-whatsapp:hover {
+            color: white;
+            background: #1fb85a;
+            transform: translateY(-1px);
+        }
+
+        .btn-carrito-temporal {
+            background: var(--verde-principal);
+            color: white;
+            border: 0;
+            border-radius: 11px;
+            padding: 13px 18px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-carrito-temporal:hover {
+            background: var(--verde-cta);
+            transform: translateY(-1px);
+        }
+
+        .mensaje-carrito {
+            color: #047857;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 991.98px) {
+            .modal-producto-img {
+                min-height: 300px;
+                max-height: 420px;
+            }
+
+            .modal-producto-info {
+                padding: 26px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .catalog-hero {
+                padding-top: 45px;
+            }
+
+            .search-box input {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .btn-yellow {
+                width: 100%;
+                text-align: center;
+            }
+
+            .cta-presupuesto {
+                text-align: center;
+            }
+
+            .brand-logo {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+
+        <a class="brand-logo" th:href="@{/}">
+            <span class="logo-icon">🌲</span>
+            Carpintería Circular 360
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menuPrincipal">
+
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse"
+             id="menuPrincipal">
+
+            <nav class="navbar-nav ms-auto align-items-lg-center gap-lg-4">
+
+                <a class="nav-link"
+                   th:href="@{/}">
+                    Inicio
+                </a>
+
+                <a class="nav-link active"
+                   th:href="@{/catalogo}">
+                    Catálogo
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/#proposito}">
+                    Nosotros
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/#contacto}">
+                    Contacto
+                </a>
+
+                <a class="btn-login-nav ms-lg-2"
+                   th:href="@{/login}">
+
+                    <i class="bi bi-person-circle"></i>
+                    Iniciar Sesión
+                </a>
+
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+
+    <section class="catalog-hero">
+        <div class="container">
+
+            <span class="badge-catalogo">
+                Colecciones disponibles 2026
+            </span>
+
+            <h1 class="catalog-title">
+                Catálogo de Productos
+            </h1>
+
+            <p class="catalog-text mt-3">
+                Explora nuestra colección sostenible. Cada pieza se fabrica con
+                retales de maderas nobles recuperadas de talleres de alta gama local.
+            </p>
+
+            <div class="cta-presupuesto mt-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+
+                <div>
+                    <h3>
+                        ¿No encuentras tus dimensiones perfectas?
+                    </h3>
+
+                    <p>
+                        Trabajamos bajo plano o bajo ideas personalizadas.
+                        Cuéntanos qué necesitas y calcularemos el presupuesto
+                        circular ideal para tu hogar.
+                    </p>
+                </div>
+
+                <a th:href="@{/login}"
+                   class="btn-yellow">
+                    Solicitar Presupuesto
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="container pb-5">
+
+        <div class="filters-bar d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <button type="button"
+                        class="filter-btn active"
+                        data-filter="Todos">
+                    Todos
+                </button>
+
+                <button type="button"
+                        class="filter-btn"
+                        data-filter="Mesas">
+                    Mesas
+                </button>
+
+                <button type="button"
+                        class="filter-btn"
+                        data-filter="Sillas">
+                    Sillas
+                </button>
+
+                <button type="button"
+                        class="filter-btn"
+                        data-filter="Estantes">
+                    Estantes
+                </button>
+
+                <button type="button"
+                        class="filter-btn"
+                        data-filter="Decoración">
+                    Decoración
+                </button>
+
+                <button type="button"
+                        class="filter-btn"
+                        data-filter="Cocina">
+                    Cocina
+                </button>
+
+                <button type="button"
+                        class="filter-btn"
+                        data-filter="Otros">
+                    Otros
+                </button>
+
+            </div>
+
+            <div class="search-box">
+
+                <i class="bi bi-search"></i>
+
+                <input type="text"
+                       id="buscador"
+                       placeholder="Buscar madera, mesa, utensilios...">
+
+            </div>
+        </div>
+
+        <div class="row g-4"
+             id="catalogoProductos">
+
+            <div class="col-12"
+                 th:if="${#lists.isEmpty(productos)}">
+
+                <div class="text-center py-5 bg-white rounded-4 border">
+
+                    <p class="text-muted fst-italic mb-0">
+                        No hay productos disponibles en este momento.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 producto-item"
+                 th:each="producto : ${productos}"
+                 th:attr="data-category=${producto.categoria},
+                          data-name=${producto.nombre + ' ' +
+                          (producto.descripcion != null
+                          ? producto.descripcion
+                          : '')}">
+
+                <div class="product-card producto-vista"
+                     role="button"
+                     tabindex="0"
+                     th:attr="aria-label=${'Ver detalles de ' + producto.nombre},
+                              data-id=${producto.id},
+                              data-nombre=${producto.nombre},
+                              data-descripcion=${producto.descripcion != null and !producto.descripcion.isBlank()
+                                  ? producto.descripcion
+                                  : 'Sin descripción disponible.'},
+                              data-categoria=${producto.categoria},
+                              data-precio=${#numbers.formatDecimal(producto.precio, 0, 'COMMA', 2, 'POINT')},
+                              data-stock=${producto.cantidad},
+                              data-imagen=${producto.imagen != null and !producto.imagen.isBlank()
+                                  ? '/uploads/productos/' + producto.imagen
+                                  : 'https://placehold.co/1000x700?text=Sin+imagen'}">
+
+                    <div class="product-img-wrap">
+
+                        <img th:if="${producto.imagen != null
+                                     and !producto.imagen.isBlank()}"
+                             th:src="@{'/uploads/productos/' + ${producto.imagen}}"
+                             th:alt="${producto.nombre}">
+
+                        <img th:unless="${producto.imagen != null
+                                         and !producto.imagen.isBlank()}"
+                             src="https://placehold.co/800x500?text=Sin+imagen"
+                             alt="Producto sin imagen">
+
+                        <span class="category-pill"
+                              th:text="${producto.categoria}">
+                            Categoría
+                        </span>
+
+                        <div class="pedido-overlay"
+                             th:if="${producto.cantidad == 0}">
+
+                            <span>
+                                Bajo pedido
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="product-body">
+
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+
+                            <h3 class="product-name"
+                                th:text="${producto.nombre}">
+                                Nombre del producto
+                            </h3>
+
+                            <span class="product-price">
+
+                                ₡<span th:text="${#numbers.formatDecimal(
+                                    producto.precio,
+                                    0,
+                                    'COMMA',
+                                    2,
+                                    'POINT')}">
+                                </span>
+
+                            </span>
+
+                        </div>
+
+                        <p class="product-desc"
+                           th:text="${producto.descripcion}">
+                            Descripción del producto
+                        </p>
+
+                        <div class="product-footer">
+
+                            <span class="stock stock-ok"
+                                  th:if="${producto.cantidad > 0}">
+
+                                Stock:
+                                <span th:text="${producto.cantidad}">
+                                </span>
+                                unidades
+
+                            </span>
+
+                            <span class="stock stock-pedido"
+                                  th:if="${producto.cantidad == 0}">
+                                Hecho bajo encargo
+                            </span>
+
+                            <a th:href="@{/login}"
+                               class="btn-solicitar">
+
+                                <i class="bi bi-plus-lg"></i>
+                                Solicitar
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="sinResultados"
+             class="text-center py-5 bg-white rounded-4 border d-none">
+
+            <p class="text-muted fst-italic mb-0">
+                No se encontraron productos que coincidan con la búsqueda.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- Vista rápida del producto -->
+<div class="modal fade modal-producto"
+     id="modalProducto"
+     tabindex="-1"
+     aria-labelledby="modalProductoTitulo"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <span class="fw-bold text-success">
+                    <i class="bi bi-eye me-2"></i>
+                    Vista rápida
+                </span>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body p-0">
+                <div class="row g-0">
+
+                    <div class="col-lg-7">
+                        <img id="modalProductoImagen"
+                             class="modal-producto-img"
+                             src="https://placehold.co/1000x700?text=Producto"
+                             alt="Imagen ampliada del producto">
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="modal-producto-info">
+
+                            <span id="modalProductoCategoria"
+                                  class="modal-producto-categoria">
+                                Categoría
+                            </span>
+
+                            <h2 id="modalProductoTitulo"
+                                class="modal-producto-titulo">
+                                Producto
+                            </h2>
+
+                            <div id="modalProductoPrecio"
+                                 class="modal-producto-precio">
+                                ₡0,00
+                            </div>
+
+                            <p id="modalProductoDescripcion"
+                               class="modal-producto-descripcion">
+                                Descripción del producto.
+                            </p>
+
+                            <div id="modalProductoStock"
+                                 class="modal-producto-stock">
+                            </div>
+
+                            <div id="mensajeCarrito"
+                                 class="mensaje-carrito d-none mt-3"
+                                 role="status">
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                                Producto agregado a la selección temporal.
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+
+                                <button type="button"
+                                        id="btnAgregarCarrito"
+                                        class="btn-carrito-temporal">
+                                    <i class="bi bi-cart-plus"></i>
+                                    Agregar al carrito
+                                </button>
+
+                                <a id="btnWhatsAppProducto"
+                                   class="btn-whatsapp"
+                                   href="https://wa.me/50672833238"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    <i class="bi bi-whatsapp"></i>
+                                    Consultar por WhatsApp
+                                </a>
+
+                            </div>
+
+                            <p class="small text-muted mt-3 mb-0">
+                                El carrito todavía es una selección visual. No registra un pedido
+                                hasta que conectemos esta función con el módulo de pedidos.
+                            </p>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer class="catalog-footer">
+
+    <div class="container text-center">
+
+        <p class="mb-2">
+
+            <strong>
+                Todos los proyectos de Carpintería Circular 360
+                se entregan con certificado de origen de madera rescatada.
+            </strong>
+
+        </p>
+
+        <p class="mb-0">
+            © 2026 Carpintería Circular 360.
+            Talleres de Economía Circular. San José, CR.
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+    const filterButtons =
+        document.querySelectorAll(".filter-btn");
+
+    const productos =
+        document.querySelectorAll(".producto-item");
+
+    const buscador =
+        document.getElementById("buscador");
+
+    const sinResultados =
+        document.getElementById("sinResultados");
+
+    let categoriaActual = "Todos";
+
+    function filtrarProductos() {
+
+        const texto =
+            buscador.value.toLowerCase().trim();
+
+        let visibles = 0;
+
+        productos.forEach(producto => {
+
+            const categoria =
+                producto.dataset.category || "";
+
+            const nombre =
+                (producto.dataset.name || "").toLowerCase();
+
+            const coincideCategoria =
+                categoriaActual === "Todos"
+                || categoria === categoriaActual;
+
+            const coincideTexto =
+                nombre.includes(texto);
+
+            if (coincideCategoria && coincideTexto) {
+
+                producto.classList.remove("d-none");
+                visibles++;
+
+            } else {
+
+                producto.classList.add("d-none");
+            }
+        });
+
+        if (visibles === 0 && productos.length > 0) {
+
+            sinResultados.classList.remove("d-none");
+
+        } else {
+
+            sinResultados.classList.add("d-none");
+        }
+    }
+
+    filterButtons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            filterButtons.forEach(btn =>
+                btn.classList.remove("active"));
+
+            button.classList.add("active");
+
+            categoriaActual =
+                button.dataset.filter;
+
+            filtrarProductos();
+        });
+    });
+
+    buscador.addEventListener(
+        "input",
+        filtrarProductos
+    );
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+        const elementosVista = document.querySelectorAll(".producto-vista");
+        const modalElemento = document.getElementById("modalProducto");
+        const modalProducto = new bootstrap.Modal(modalElemento);
+
+        const imagen = document.getElementById("modalProductoImagen");
+        const categoria = document.getElementById("modalProductoCategoria");
+        const titulo = document.getElementById("modalProductoTitulo");
+        const precio = document.getElementById("modalProductoPrecio");
+        const descripcion = document.getElementById("modalProductoDescripcion");
+        const stock = document.getElementById("modalProductoStock");
+        const btnWhatsApp = document.getElementById("btnWhatsAppProducto");
+        const btnAgregarCarrito = document.getElementById("btnAgregarCarrito");
+        const mensajeCarrito = document.getElementById("mensajeCarrito");
+
+        let productoActual = null;
+
+        function abrirVistaProducto(elemento) {
+            productoActual = {
+                id: elemento.dataset.id,
+                nombre: elemento.dataset.nombre || "Producto",
+                descripcion: elemento.dataset.descripcion || "Sin descripción disponible.",
+                categoria: elemento.dataset.categoria || "Sin categoría",
+                precio: elemento.dataset.precio || "0,00",
+                stock: Number(elemento.dataset.stock || 0),
+                imagen: elemento.dataset.imagen ||
+                    "https://placehold.co/1000x700?text=Sin+imagen"
+            };
+
+            imagen.src = productoActual.imagen;
+            imagen.alt = `Imagen ampliada de ${productoActual.nombre}`;
+            categoria.textContent = productoActual.categoria;
+            titulo.textContent = productoActual.nombre;
+            precio.textContent = `₡${productoActual.precio}`;
+            descripcion.textContent = productoActual.descripcion;
+
+            stock.removeAttribute("style");
+
+            if (productoActual.stock > 0) {
+                stock.className = "modal-producto-stock text-success";
+                stock.innerHTML =
+                    `<i class="bi bi-check-circle-fill"></i>
+                     Disponible: ${productoActual.stock} unidades`;
+            } else {
+                stock.className = "modal-producto-stock";
+                stock.style.color = "var(--marron)";
+                stock.innerHTML =
+                    '<i class="bi bi-hammer"></i> Disponible bajo encargo';
+            }
+
+            const mensaje =
+                `Hola, me interesa el producto "${productoActual.nombre}" ` +
+                `del catálogo de Carpintería Circular 360. ` +
+                `¿Podrían brindarme más información?`;
+
+            btnWhatsApp.href =
+                `https://wa.me/50672833238?text=${encodeURIComponent(mensaje)}`;
+
+            mensajeCarrito.classList.add("d-none");
+            btnAgregarCarrito.innerHTML =
+                '<i class="bi bi-cart-plus"></i> Agregar al carrito';
+
+            modalProducto.show();
+        }
+
+        elementosVista.forEach(elemento => {
+            elemento.addEventListener("click", event => {
+                // Los enlaces y botones internos conservan su acción propia.
+                if (event.target.closest("a, button")) {
+                    return;
+                }
+
+                abrirVistaProducto(elemento);
+            });
+
+            elemento.addEventListener("keydown", event => {
+                if (event.target.closest("a, button")) {
+                    return;
+                }
+
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    abrirVistaProducto(elemento);
+                }
+            });
+        });
+
+        const usuarioAutenticado =
+            /*[[${session.usuarioLogueado != null}]]*/ false;
+
+        const urlLogin =
+            /*[[@{/login(redirect='/catalogo')}]]*/ "/login?redirect=/catalogo";
+
+        function obtenerCarrito() {
+            try {
+                return JSON.parse(localStorage.getItem("carrito") || "[]");
+            } catch (error) {
+                localStorage.removeItem("carrito");
+                return [];
+            }
+        }
+
+        function agregarAlCarrito(producto) {
+            const carrito = obtenerCarrito();
+            const existente = carrito.find(
+                item => String(item.id) === String(producto.id)
+            );
+
+            if (existente) {
+                existente.cantidad += 1;
+            } else {
+                carrito.push({
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    precio: producto.precio,
+                    imagen: producto.imagen,
+                    stock: producto.stock,
+                    cantidad: 1
+                });
+            }
+
+            localStorage.setItem("carrito", JSON.stringify(carrito));
+        }
+
+        function mostrarProductoAgregado(texto) {
+            mensajeCarrito.classList.remove("d-none");
+            mensajeCarrito.innerHTML =
+                '<i class="bi bi-check-circle-fill me-1"></i>' + texto;
+            btnAgregarCarrito.innerHTML =
+                '<i class="bi bi-check-lg"></i> Agregado al carrito';
+        }
+
+        if (usuarioAutenticado) {
+            const pendiente = sessionStorage.getItem("productoPendienteLogin");
+
+            if (pendiente) {
+                try {
+                    const productoPendiente = JSON.parse(pendiente);
+                    agregarAlCarrito(productoPendiente);
+                    sessionStorage.removeItem("productoPendienteLogin");
+                    mostrarProductoAgregado(
+                        `"${productoPendiente.nombre}" fue agregado al carrito.`
+                    );
+                } catch (error) {
+                    sessionStorage.removeItem("productoPendienteLogin");
+                }
+            }
+        }
+
+        btnAgregarCarrito.addEventListener("click", () => {
+            if (!productoActual) {
+                return;
+            }
+
+            if (!usuarioAutenticado) {
+                sessionStorage.setItem(
+                    "productoPendienteLogin",
+                    JSON.stringify(productoActual)
+                );
+
+                window.location.href = urlLogin;
+                return;
+            }
+
+            agregarAlCarrito(productoActual);
+            mostrarProductoAgregado(
+                `"${productoActual.nombre}" fue agregado al carrito.`
+            );
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carpintería Circular 360</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Iconos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Fuentes similares al prototipo -->
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Literata:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --verde-principal: #154212;
+            --verde-claro: #bcf0ae;
+            --verde-cta: #2d5a27;
+            --texto: #1a1c1c;
+            --texto-suave: #42493e;
+            --amarillo: #EAB308;
+            --marron: #77574d;
+            --gris-fondo: #f9f9f9;
+            --gris-seccion: #f3f3f3;
+            --gris-borde: #c2c9bb;
+            --footer: #50513f;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--gris-fondo);
+            color: var(--texto);
+            font-family: "Hanken Grotesk", Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-serif {
+            font-family: "Literata", Georgia, serif;
+        }
+
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(194, 201, 187, 0.35);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .brand-logo {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .brand-logo img {
+            width: 168px;
+            height: 54px;
+            object-fit: contain;
+            object-position: left center;
+            border-radius: 8px;
+        }
+
+        .nav-link {
+            color: var(--texto-suave);
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .nav-link:hover {
+            color: var(--verde-principal);
+        }
+
+        .nav-link.active {
+            color: var(--verde-principal) !important;
+            border-bottom: 2px solid var(--verde-principal);
+        }
+
+        .btn-admin {
+            background-color: var(--verde-principal);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-decoration: none;
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .btn-admin:hover {
+            color: white;
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .hero {
+            position: relative;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: linear-gradient(90deg, #fafaf8 0%, #f7f7f4 55%, rgba(249,249,249,0.65) 100%);
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+        }
+
+        .hero-bg::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #f9f9f9 0%, rgba(249,249,249,0.87) 55%, rgba(249,249,249,0.1) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            padding-top: 90px;
+            padding-bottom: 80px;
+        }
+
+        .badge-sostenible {
+            display: inline-flex;
+            align-items: center;
+            background: var(--verde-claro);
+            color: #002201;
+            border: 1px solid rgba(21, 66, 18, 0.2);
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+
+        .hero-title {
+            color: var(--verde-principal);
+            font-size: clamp(2.6rem, 6vw, 5.1rem);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-text {
+            color: var(--texto-suave);
+            font-size: 1.25rem;
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 620px;
+        }
+
+        .btn-yellow {
+            background-color: var(--amarillo);
+            color: var(--marron);
+            border: none;
+            padding: 15px 28px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.86rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            transition: 0.2s;
+        }
+
+        .btn-yellow:hover {
+            color: var(--marron);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.16);
+        }
+
+        .btn-outline-green {
+            border: 2px solid var(--verde-principal);
+            color: var(--verde-principal);
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.86rem;
+            text-decoration: none;
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .btn-outline-green:hover {
+            color: var(--verde-principal);
+            background: rgba(21, 66, 18, 0.05);
+        }
+
+        .avatar-stack {
+            display: flex;
+            margin-right: 18px;
+        }
+
+        .avatar-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #eeeeee;
+            overflow: hidden;
+            margin-left: -12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .avatar-circle:first-child {
+            margin-left: 0;
+        }
+
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-circle-wrap {
+            position: relative;
+        }
+
+        .hero-circle-glow {
+            position: absolute;
+            inset: 0;
+            background: rgba(188, 240, 174, 0.22);
+            filter: blur(45px);
+            border-radius: 50%;
+            transform: scale(1.15);
+        }
+
+        .hero-circle {
+            position: relative;
+            width: 100%;
+            max-width: 370px;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 12px solid white;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+            background: white;
+            padding: 24px;
+            margin: auto;
+        }
+
+        .hero-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .section-light {
+            background-color: var(--gris-seccion);
+            padding: 95px 0;
+        }
+
+        .section-title {
+            color: var(--verde-principal);
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            letter-spacing: -0.02em;
+        }
+
+        .title-line {
+            width: 80px;
+            height: 4px;
+            background: var(--amarillo);
+            border-radius: 99px;
+            margin: 18px auto;
+        }
+
+        .section-subtitle {
+            color: var(--texto-suave);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-weight: 600;
+        }
+
+        .purpose-card {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid rgba(194, 201, 187, 0.25);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.035);
+            transition: 0.25s;
+            height: 100%;
+        }
+
+        .purpose-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+        }
+
+        .purpose-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(145deg, rgba(188, 240, 174, 0.48), rgba(188, 240, 174, 0.2));
+            color: var(--verde-principal);
+            border: 1px solid rgba(21, 66, 18, 0.1);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.65rem;
+            margin-bottom: 24px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+        }
+
+        .purpose-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .purpose-card p {
+            color: var(--texto-suave);
+            font-size: 0.95rem;
+            line-height: 1.75;
+        }
+
+        .process-section {
+            padding: 95px 0;
+            background: var(--gris-fondo);
+        }
+
+        .small-label {
+            color: var(--marron);
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .process-text {
+            color: var(--texto-suave);
+            font-size: 1.03rem;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--texto);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .check-item i {
+            color: var(--verde-principal);
+            font-size: 1.15rem;
+        }
+
+        .wood-card {
+            position: relative;
+            aspect-ratio: 1/1;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #eeeeee;
+            box-shadow: 0 22px 45px rgba(0,0,0,0.14);
+        }
+
+        .wood-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.6s;
+        }
+
+        .wood-card:hover img {
+            transform: scale(1.04);
+        }
+
+        .wood-label {
+            position: absolute;
+            left: 24px;
+            bottom: 24px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            padding: 16px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(194, 201, 187, 0.3);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+
+        .wood-label strong {
+            color: var(--verde-principal);
+            font-family: "Literata", Georgia, serif;
+        }
+
+        .wood-label span {
+            color: var(--texto-suave);
+            font-size: 0.78rem;
+        }
+
+        .cta-section {
+            background: var(--verde-cta);
+            color: white;
+            padding: 80px 0;
+        }
+
+        .btn-green-dark {
+            background: var(--verde-principal);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 15px 28px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.86rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .btn-green-dark:hover {
+            color: white;
+            background: rgba(21, 66, 18, 0.85);
+        }
+
+        footer {
+            background: var(--footer);
+            color: white;
+            padding: 65px 0 30px;
+        }
+
+        footer p, footer a {
+            color: #c3c4ac;
+            font-size: 0.93rem;
+        }
+
+        footer a {
+            display: block;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        footer a:hover {
+            color: white;
+        }
+
+        .footer-title {
+            color: var(--verde-claro);
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            margin-bottom: 18px;
+        }
+
+        .newsletter-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+
+        .newsletter-input::placeholder {
+            color: rgba(255,255,255,0.65);
+        }
+
+        .newsletter-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(188, 240, 174, 0.35);
+            background: rgba(255,255,255,0.12);
+            color: white;
+        }
+
+        .newsletter-btn {
+            background: var(--verde-principal);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+        }
+
+        .copyright {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 45px;
+            padding-top: 25px;
+            color: rgba(195, 196, 172, 0.7);
+            font-size: 0.78rem;
+            text-align: center;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 82px;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible {
+            outline: 3px solid rgba(234, 179, 8, 0.55);
+            outline-offset: 3px;
+        }
+
+        .hero-circle img {
+            object-fit: cover;
+        }
+
+        .navbar-toggler {
+            border-color: rgba(21, 66, 18, 0.25);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(21, 66, 18, 0.15);
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                margin-top: 14px;
+                padding: 14px;
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 14px;
+                box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            }
+
+            .nav-link.active {
+                border-bottom: 0;
+                background: rgba(188, 240, 174, 0.28);
+                border-radius: 8px;
+                padding-left: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                min-height: auto;
+            }
+
+            .hero-content {
+                padding-top: 120px;
+                padding-bottom: 60px;
+            }
+
+            .hero-title {
+                font-size: 2.7rem;
+            }
+
+            .hero-text {
+                font-size: 1.05rem;
+            }
+
+            .btn-yellow,
+            .btn-outline-green,
+            .btn-green-dark {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .brand-logo {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+        <a class="brand-logo" th:href="@{/}" href="/" aria-label="Ir al inicio de Carpintería Circular 360">
+            <img th:src="@{/uploads/productos/logoColorBlancoVerde.jpeg}"
+                 src="/uploads/productos/logoColorBlancoVerde.jpeg"
+                 alt="Logo de Carpintería Circular 360">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal" aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú de navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+            <nav class="navbar-nav ms-auto align-items-lg-center gap-lg-4">
+                <a class="nav-link active" th:href="@{/}" href="/">Inicio</a>
+                <a class="nav-link" th:href="@{/catalogo}" href="/catalogo">Catálogo</a>
+                <a class="nav-link" href="#proposito">Nosotros</a>
+                <a class="nav-link" href="#contacto">Contacto</a>
+               <a class="btn-admin ms-lg-2" th:href="@{/login}" href="/login">
+    <i class="bi bi-person-circle"></i>
+    Iniciar Sesión
+</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+
+    <section class="hero">
+        <div class="hero-bg">
+            <img th:src="@{/uploads/productos/brochureCarpinteria.jpeg}"
+                 src="/uploads/productos/brochureCarpinteria.jpeg"
+                 alt="Diseño de Carpintería Circular 360">
+        </div>
+
+        <div class="container hero-content">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <div class="badge-sostenible mb-4">
+                        🌲 ARTESANÍA SOSTENIBLE
+                    </div>
+
+                    <h1 class="hero-title mb-4">
+                        Carpintería Circular 360
+                    </h1>
+
+                    <p class="hero-text mb-4">
+                        Madera reutilizada, diseño artesanal y productos únicos hechos a mano.
+                        Transformamos lo que otros desechan en el centro de tu hogar.
+                    </p>
+
+                    <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+                        <a th:href="@{/catalogo}" href="/catalogo" class="btn-yellow">
+                            Ver catálogo
+                        </a>
+
+                        <a href="https://wa.me/#" target="_blank" class="btn-outline-green">
+                            <i class="bi bi-whatsapp"></i>
+                            Contactar por WhatsApp
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-house-heart-fill fs-4" style="color:#154212;" aria-hidden="true"></i>
+                        <p class="mb-0 small text-muted">
+                            <strong style="color:#154212;">+500 familias</strong><br>
+                            disfrutan de piezas únicas en sus hogares
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 d-none d-lg-block">
+                    <div class="hero-circle-wrap">
+                        <div class="hero-circle-glow"></div>
+                        <div class="hero-circle">
+                            <img th:src="@{/uploads/productos/logoColorBlancoVerde.jpeg}"
+                                 src="/uploads/productos/logoColorBlancoVerde.jpeg"
+                                 alt="Logo de Carpintería Circular 360">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <section id="proposito" class="section-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Nuestro Propósito</h2>
+                <div class="title-line"></div>
+                <p class="section-subtitle">Diseño Sostenible & Artesanía Circular</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="purpose-card">
+                        <div class="purpose-icon"><i class="bi bi-arrow-repeat"></i></div>
+                        <h3>Circularidad Total</h3>
+                        <p>
+                            Damos una segunda vida a maderas nobles recuperadas de demoliciones
+                            y excedentes industriales, evitando la deforestación y el desperdicio.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="purpose-card">
+                        <div class="purpose-icon"><i class="bi bi-tools"></i></div>
+                        <h3>Maestría Artesanal</h3>
+                        <p>
+                            Cada pieza es única. Combinamos técnicas de carpintería tradicional
+                            con un diseño contemporáneo para resaltar la veta y el alma de la madera.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="purpose-card">
+                        <div class="purpose-icon"><i class="bi bi-house-heart-fill"></i></div>
+                        <h3>Hogar Consciente</h3>
+                        <p>
+                            Nuestros muebles no solo decoran, sino que cuentan una historia de respeto
+                            por la naturaleza y compromiso con un futuro más verde.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="catalogo" class="process-section">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <span class="small-label mb-3 d-block">PROCESO CIRCULAR</span>
+
+                    <h2 class="section-title mb-4">
+                        Piezas que cuentan historias reales de la naturaleza
+                    </h2>
+
+                    <p class="process-text mb-4">
+                        Madera rescatada, tratada con cera de abeja y terminada con acabados artesanales que resaltan su textura natural.
+                    </p>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="check-item">
+                                <i class="bi bi-check-circle-fill"></i>
+                                FSC Certificado
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="check-item">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Eco-friendly
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="check-item">
+                                <i class="bi bi-check-circle-fill"></i>
+                                100% Hecho a mano
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="check-item">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Diseño Único
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <a th:href="@{/login}" href="/login" class="btn-yellow">
+                            Solicitar Presupuesto
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="wood-card">
+                        <img th:src="@{/uploads/productos/SobreDeMesaGrande.jpeg}"
+                             src="/uploads/productos/SobreDeMesaGrande.jpeg"
+                             alt="Sobre de mesa grande de madera artesanal">
+                        <div class="wood-label">
+                            <strong>Sobre de Mesa Grande</strong><br>
+                            <span>Madera rescatada y acabada a mano</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <section class="cta-section">
+        <div class="container text-center">
+            <div class="mx-auto" style="max-width: 850px;">
+                <h2 class="font-serif fw-bold mb-4" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+                    ¿Tienes un proyecto en mente?
+                </h2>
+
+                <p class="mb-5" style="font-size: 1.12rem; color: rgba(255,255,255,0.9); line-height: 1.8;">
+                    Realizamos muebles a medida y proyectos especiales para hogares y empresas
+                    que buscan diferenciarse con un sello de sostenibilidad y exclusividad.
+                </p>
+
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a th:href="@{/login}" href="/login" class="btn-yellow">
+                        Solicitar Presupuesto
+                    </a>
+
+                    <a th:href="@{/catalogo}" href="/catalogo" class="btn-green-dark">
+                        Explorar Catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer id="contacto">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-md-4 text-center text-md-start">
+                <h4 class="font-serif fw-bold mb-3">🌲 Carpintería Circular 360</h4>
+                <p>
+                    Dando nueva vida a la madera recuperada, creando hogares conscientes y duraderos.
+                </p>
+            </div>
+
+            <div class="col-md-4 text-center text-md-start">
+                <h5 class="footer-title">Enlaces Rápidos</h5>
+                <a href="#proposito">Sostenibilidad</a>
+                <a href="https://wa.me/#" target="_blank">Contactar WhatsApp</a>
+                <a href="#proposito">Términos y Condiciones</a>
+                <a href="#contacto">Privacidad</a>
+            </div>
+
+            <div class="col-md-4 text-center text-md-start">
+                <h5 class="footer-title">Newsletter</h5>
+                <p>
+                    Únete para recibir noticias sobre nuevos diseños y tips de cuidado de madera.
+                </p>
+
+                <form class="d-flex gap-2" onsubmit="return false;" aria-label="Suscripción al boletín">
+                    <input type="email" class="form-control newsletter-input" placeholder="Tu correo electrónico" aria-label="Correo electrónico">
+                    <button type="button" class="newsletter-btn" aria-label="Suscribirse al boletín">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="copyright">
+            © 2026 Carpintería Circular 360. Madera con propósito. Todos los derechos reservados.
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

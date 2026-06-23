@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Registrar pedido - Carpintería Circular 360</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f5f2ec;
+        }
+
+        .navbar-carpinteria {
+            background-color: #355943;
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: #ffffff !important;
+        }
+
+        .nav-link:hover {
+            color: #d8eadc !important;
+        }
+
+        .page-title {
+            color: #355943;
+        }
+
+        .form-card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            color: #355943;
+            font-weight: 700;
+        }
+
+        .product-item {
+            border: 1px solid #dee2e6;
+            border-radius: 14px;
+            background-color: #fafafa;
+        }
+
+        .product-number {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background-color: #355943;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .btn-main {
+            background-color: #355943;
+            border-color: #355943;
+            color: white;
+        }
+
+        .btn-main:hover {
+            background-color: #294735;
+            border-color: #294735;
+            color: white;
+        }
+
+        .footer {
+            background-color: #2b4735;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-carpinteria">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/admin}">
+            <i class="bi bi-tree-fill me-2"></i>
+            Carpintería Circular 360
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal"
+                aria-expanded="false"
+                aria-label="Mostrar navegación">
+
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin}">
+                        <i class="bi bi-grid me-1"></i>
+                        Menú
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/productos}">
+                        Productos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/clientes}">
+                        Clientes
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/pedidos}">
+                        Pedidos
+                    </a>
+                </li>
+
+                <li class="nav-item ms-lg-2">
+                    <a class="btn btn-outline-light btn-sm" th:href="@{/logout}">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        Cerrar sesión
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="page-title fw-bold mb-1">
+                Registrar pedido
+            </h1>
+
+            <p class="text-secondary mb-0">
+                Selecciona un cliente y agrega uno o varios productos.
+            </p>
+        </div>
+
+        <a class="btn btn-outline-secondary"
+           th:href="@{/admin/pedidos}">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Volver a pedidos
+        </a>
+    </div>
+
+    <div class="alert alert-danger"
+         th:if="${error}"
+         role="alert">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <div class="alert alert-warning"
+         th:if="${clientes == null or #lists.isEmpty(clientes)}"
+         role="alert">
+
+        <i class="bi bi-person-exclamation me-2"></i>
+        No hay clientes activos disponibles. Debes registrar o activar un cliente antes de crear un pedido.
+    </div>
+
+    <div class="alert alert-warning"
+         th:if="${productos == null or #lists.isEmpty(productos)}"
+         role="alert">
+
+        <i class="bi bi-box-seam me-2"></i>
+        No hay productos activos disponibles. Debes registrar o activar un producto antes de crear un pedido.
+    </div>
+
+    <div class="card form-card">
+        <div class="card-body p-4 p-lg-5">
+
+            <form th:action="@{/admin/pedidos/guardar}"
+                  th:object="${pedidoFormulario}"
+                  method="post"
+                  id="pedidoForm">
+
+                <div class="row g-4">
+
+                    <div class="col-12">
+                        <h2 class="h5 section-title mb-3">
+                            <i class="bi bi-person-check me-2"></i>
+                            Información del cliente
+                        </h2>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="clienteId"
+                               class="form-label fw-semibold">
+
+                            Cliente
+                        </label>
+
+                        <select id="clienteId"
+                                class="form-select"
+                                th:field="*{clienteId}"
+                                required>
+
+                            <option value="">
+                                Seleccione un cliente
+                            </option>
+
+                            <option th:each="cliente : ${clientes}"
+                                    th:value="${cliente.id}"
+                                    th:text="${cliente.nombre + ' - ' + cliente.correo}">
+                            </option>
+                        </select>
+
+                        <div class="form-text">
+                            Solo aparecen clientes activos.
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <hr>
+                    </div>
+
+                    <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div>
+                            <h2 class="h5 section-title mb-1">
+                                <i class="bi bi-cart-plus me-2"></i>
+                                Productos del pedido
+                            </h2>
+
+                            <p class="text-secondary mb-0">
+                                Puedes agregar varios productos al mismo pedido.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                                class="btn btn-outline-success"
+                                id="agregarProducto">
+
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Agregar producto
+                        </button>
+                    </div>
+
+                    <div class="col-12">
+                        <div id="productosContainer">
+
+                            <div class="product-item p-3 mb-3"
+                                 th:each="item, estado : *{items}">
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="product-number"
+                                              th:text="${estado.index + 1}">
+                                            1
+                                        </span>
+
+                                        <strong>Producto</strong>
+                                    </div>
+
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm eliminarProducto">
+
+                                        <i class="bi bi-trash me-1"></i>
+                                        Eliminar
+                                    </button>
+                                </div>
+
+                                <div class="row g-3">
+
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-semibold">
+                                            Producto
+                                        </label>
+
+                                        <select class="form-select producto-select"
+                                                th:field="*{items[__${estado.index}__].productoId}"
+                                                required>
+
+                                            <option value="">
+                                                Seleccione un producto
+                                            </option>
+
+                                            <option th:each="producto : ${productos}"
+                                                    th:value="${producto.id}"
+                                                    th:text="${producto.nombre
+                                                    + ' | ₡'
+                                                    + #numbers.formatDecimal(
+                                                        producto.precio,
+                                                        1,
+                                                        'COMMA',
+                                                        2,
+                                                        'POINT')
+                                                    + ' | Existencias: '
+                                                    + producto.cantidad}">
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">
+                                            Cantidad
+                                        </label>
+
+                                        <input type="number"
+                                               class="form-control cantidad-input"
+                                               th:field="*{items[__${estado.index}__].cantidad}"
+                                               min="1"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <hr>
+                    </div>
+
+                    <div class="col-12">
+                        <h2 class="h5 section-title mb-3">
+                            <i class="bi bi-chat-left-text me-2"></i>
+                            Información adicional
+                        </h2>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="observaciones"
+                               class="form-label fw-semibold">
+
+                            Observaciones
+                        </label>
+
+                        <textarea id="observaciones"
+                                  class="form-control"
+                                  th:field="*{observaciones}"
+                                  maxlength="500"
+                                  rows="5"
+                                  placeholder="Medidas, acabado, detalles de entrega u otras indicaciones."></textarea>
+
+                        <div class="d-flex justify-content-between mt-1">
+                            <div class="form-text">
+                                Campo opcional.
+                            </div>
+
+                            <div class="form-text">
+                                <span id="contadorObservaciones">0</span>/500
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 pt-3">
+
+                            <a class="btn btn-outline-secondary"
+                               th:href="@{/admin/pedidos}">
+
+                                <i class="bi bi-x-circle me-1"></i>
+                                Cancelar
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-main"
+                                    id="guardarPedido"
+                                    th:disabled="${clientes == null
+                                    or #lists.isEmpty(clientes)
+                                    or productos == null
+                                    or #lists.isEmpty(productos)}">
+
+                                <i class="bi bi-check-circle me-1"></i>
+                                Guardar pedido
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer class="footer text-center py-3 mt-5">
+    <div class="container">
+        Carpintería Circular 360 - Gestión de pedidos
+    </div>
+</footer>
+
+<template id="productoTemplate">
+    <div class="product-item p-3 mb-3">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div class="d-flex align-items-center gap-2">
+                <span class="product-number">1</span>
+                <strong>Producto</strong>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm eliminarProducto">
+
+                <i class="bi bi-trash me-1"></i>
+                Eliminar
+            </button>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-md-8">
+                <label class="form-label fw-semibold">
+                    Producto
+                </label>
+
+                <select class="form-select producto-select" required>
+                    <option value="">
+                        Seleccione un producto
+                    </option>
+
+                    <option th:each="producto : ${productos}"
+                            th:value="${producto.id}"
+                            th:text="${producto.nombre
+                            + ' | ₡'
+                            + #numbers.formatDecimal(
+                                producto.precio,
+                                1,
+                                'COMMA',
+                                2,
+                                'POINT')
+                            + ' | Existencias: '
+                            + producto.cantidad}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                    Cantidad
+                </label>
+
+                <input type="number"
+                       class="form-control cantidad-input"
+                       min="1"
+                       value="1"
+                       required>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const productosContainer = document.getElementById("productosContainer");
+    const agregarProductoButton = document.getElementById("agregarProducto");
+    const productoTemplate = document.getElementById("productoTemplate");
+    const observaciones = document.getElementById("observaciones");
+    const contadorObservaciones = document.getElementById("contadorObservaciones");
+    const pedidoForm = document.getElementById("pedidoForm");
+    const guardarPedido = document.getElementById("guardarPedido");
+
+    function actualizarIndices() {
+        const filas = productosContainer.querySelectorAll(".product-item");
+
+        filas.forEach((fila, indice) => {
+            const numero = fila.querySelector(".product-number");
+            const productoSelect = fila.querySelector(".producto-select");
+            const cantidadInput = fila.querySelector(".cantidad-input");
+
+            numero.textContent = indice + 1;
+
+            productoSelect.name = `items[${indice}].productoId`;
+            productoSelect.id = `items${indice}.productoId`;
+
+            cantidadInput.name = `items[${indice}].cantidad`;
+            cantidadInput.id = `items${indice}.cantidad`;
+        });
+
+        actualizarBotonesEliminar();
+    }
+
+    function actualizarBotonesEliminar() {
+        const filas = productosContainer.querySelectorAll(".product-item");
+        const botones = productosContainer.querySelectorAll(".eliminarProducto");
+
+        botones.forEach(boton => {
+            boton.disabled = filas.length === 1;
+        });
+    }
+
+    agregarProductoButton.addEventListener("click", () => {
+        const fragmento = productoTemplate.content.cloneNode(true);
+        productosContainer.appendChild(fragmento);
+        actualizarIndices();
+    });
+
+    productosContainer.addEventListener("click", evento => {
+        const boton = evento.target.closest(".eliminarProducto");
+
+        if (!boton) {
+            return;
+        }
+
+        const filas = productosContainer.querySelectorAll(".product-item");
+
+        if (filas.length <= 1) {
+            return;
+        }
+
+        boton.closest(".product-item").remove();
+        actualizarIndices();
+    });
+
+    observaciones.addEventListener("input", () => {
+        contadorObservaciones.textContent = observaciones.value.length;
+    });
+
+    contadorObservaciones.textContent = observaciones.value.length;
+
+    pedidoForm.addEventListener("submit", () => {
+        guardarPedido.disabled = true;
+        guardarPedido.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+    });
+
+    actualizarIndices();
+</script>
+
+</body>
+</html>
