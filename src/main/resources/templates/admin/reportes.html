@@ -429,8 +429,14 @@
                             <div>
                                 <p class="text-secondary mb-2">Total vendido</p>
                                 <p class="valor-metrica fs-4 mb-1"
-                                   th:text="${'₡' + #numbers.formatDecimal(totalVendido, 1, 'COMMA', 2, 'POINT')}">
-                                    ₡0.00
+                                   th:text="${'₡' + #numbers.formatDecimal(
+                                           totalVendido != null ? totalVendido : 0,
+                                           1,
+                                           'POINT',
+                                           0,
+                                           'COMMA'
+                                   )}">
+                                    ₡0
                                 </p>
                                 <small class="text-secondary">Pedidos completados</small>
                             </div>
@@ -447,8 +453,14 @@
                             <div>
                                 <p class="text-secondary mb-2">Promedio por venta</p>
                                 <p class="valor-metrica fs-4 mb-1"
-                                   th:text="${'₡' + #numbers.formatDecimal(promedioVenta, 1, 'COMMA', 2, 'POINT')}">
-                                    ₡0.00
+                                   th:text="${'₡' + #numbers.formatDecimal(
+                                           promedioVenta != null ? promedioVenta : 0,
+                                           1,
+                                           'POINT',
+                                           0,
+                                           'COMMA'
+                                   )}">
+                                    ₡0
                                 </p>
                                 <small class="text-secondary">Promedio de pedidos completados</small>
                             </div>
@@ -495,8 +507,14 @@
                     <tr th:each="producto : ${productosPocasExistencias}">
                         <td class="ps-4 fw-semibold" th:text="${producto.nombre}">Producto</td>
                         <td th:text="${producto.categoria}">Categoría</td>
-                        <td th:text="${'₡' + #numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">
-                            ₡0.00
+                        <td th:text="${'₡' + #numbers.formatDecimal(
+                                producto.precio != null ? producto.precio : 0,
+                                1,
+                                'POINT',
+                                0,
+                                'COMMA'
+                        )}">
+                            ₡0
                         </td>
                         <td>
                             <span class="stock-low" th:text="${producto.cantidad}">0</span>
@@ -558,7 +576,11 @@
                             <span class="fw-semibold" th:text="${'#PED-' + pedido.id}">#PED-1</span>
                         </td>
                         <td th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}">21/06/2026</td>
-                        <td th:text="${pedido.cliente.nombre}">Cliente</td>
+                        <td th:text="${pedido.cliente != null
+                                ? pedido.cliente.nombre
+                                : 'Cliente no disponible'}">
+                            Cliente
+                        </td>
                         <td>
                             <span class="badge rounded-pill"
                                   th:classappend="${pedido.estado.name() == 'PENDIENTE'} ? ' badge-soft-warning' :
@@ -570,8 +592,14 @@
                             </span>
                         </td>
                         <td class="pe-4 text-end fw-semibold"
-                            th:text="${'₡' + #numbers.formatDecimal(pedido.total, 1, 'COMMA', 2, 'POINT')}">
-                            ₡0.00
+                            th:text="${'₡' + #numbers.formatDecimal(
+                                    pedido.total != null ? pedido.total : 0,
+                                    1,
+                                    'POINT',
+                                    0,
+                                    'COMMA'
+                            )}">
+                            ₡0
                         </td>
                     </tr>
 
@@ -581,7 +609,7 @@
                                 <i class="bi bi-receipt d-block mb-2"></i>
                                 <h3 class="h6 mb-1">No hay pedidos registrados</h3>
                                 <p class="mb-3">Los pedidos recientes aparecerán aquí.</p>
-                                <a class="btn btn btn-light btn-sm" th:href="@{/admin/pedidos/nuevo}">
+                                <a class="btn btn-light btn-sm" th:href="@{/admin/pedidos/nuevo}">
                                     <i class="bi bi-plus-lg me-1"></i>Registrar pedido
                                 </a>
                             </div>

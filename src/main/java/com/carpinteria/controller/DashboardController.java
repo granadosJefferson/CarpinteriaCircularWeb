@@ -1,18 +1,17 @@
 package com.carpinteria.controller;
 
-import com.carpinteria.model.EstadoPedido;
-import com.carpinteria.model.Pedido;
-import com.carpinteria.repository.ClienteRepository;
-import com.carpinteria.repository.PedidoRepository;
-import com.carpinteria.repository.ProductoRepository;
-
-import jakarta.servlet.http.HttpSession;
-
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import com.carpinteria.model.EstadoPedido;
+import com.carpinteria.repository.ClienteRepository;
+import com.carpinteria.repository.PedidoRepository;
+import com.carpinteria.repository.ProductoRepository;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class DashboardController {
@@ -61,12 +60,14 @@ public class DashboardController {
                         EstadoPedido.COMPLETADO
                 );
 
-        BigDecimal totalVentas = pedidoRepository
-                .findByEstado(EstadoPedido.COMPLETADO)
-                .stream()
-                .map(Pedido::getTotal)
-                .filter(total -> total != null)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalVendido =
+                pedidoRepository.sumarTotalPorEstado(
+                        EstadoPedido.COMPLETADO
+                );
+
+        if (totalVendido == null) {
+            totalVendido = BigDecimal.ZERO;
+        }
 
         model.addAttribute(
                 "totalProductos",
@@ -94,8 +95,8 @@ public class DashboardController {
         );
 
         model.addAttribute(
-                "totalVentas",
-                totalVentas
+                "totalVendido",
+                totalVendido
         );
 
         return "dashboard";

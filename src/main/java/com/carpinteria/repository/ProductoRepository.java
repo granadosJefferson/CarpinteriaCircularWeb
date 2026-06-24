@@ -8,7 +8,7 @@ import com.carpinteria.model.Producto;
 
 public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
-     long countByActivoTrue();
+    long countByActivoTrue();
 
     List<Producto> findByActivoTrue();
 

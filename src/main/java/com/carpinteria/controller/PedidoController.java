@@ -41,21 +41,27 @@ public class PedidoController {
 
         model.addAttribute(
                 "pedidos",
-                pedidoService.listarTodos());
+                pedidoService.listarTodos()
+        );
 
         model.addAttribute(
                 "estados",
-                Arrays.asList(EstadoPedido.values()));
+                Arrays.asList(
+                        EstadoPedido.values()
+                )
+        );
 
         return "admin/pedidos";
     }
 
     @GetMapping("/nuevo")
-    public String mostrarFormulario(Model model) {
+    public String mostrarFormulario(
+            Model model) {
 
         model.addAttribute(
                 "pedidoFormulario",
-                new PedidoFormulario());
+                new PedidoFormulario()
+        );
 
         cargarDatosFormulario(model);
 
@@ -71,11 +77,14 @@ public class PedidoController {
 
         try {
 
-            pedidoService.crearPedido(pedidoFormulario);
+            pedidoService.crearPedido(
+                    pedidoFormulario
+            );
 
             redirectAttributes.addFlashAttribute(
                     "mensaje",
-                    "Pedido registrado correctamente");
+                    "Pedido registrado correctamente"
+            );
 
             return "redirect:/admin/pedidos";
 
@@ -83,7 +92,8 @@ public class PedidoController {
 
             model.addAttribute(
                     "error",
-                    e.getMessage());
+                    e.getMessage()
+            );
 
             cargarDatosFormulario(model);
 
@@ -94,13 +104,27 @@ public class PedidoController {
     @GetMapping("/ver/{id}")
     public String verDetalle(
             @PathVariable Long id,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
-        model.addAttribute(
-                "pedido",
-                pedidoService.buscarPorId(id));
+        try {
 
-        return "admin/pedido-detalle";
+            model.addAttribute(
+                    "pedido",
+                    pedidoService.buscarPorId(id)
+            );
+
+            return "admin/pedido-detalle";
+
+        } catch (IllegalArgumentException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    e.getMessage()
+            );
+
+            return "redirect:/admin/pedidos";
+        }
     }
 
     @PostMapping("/estado/{id}")
@@ -111,30 +135,68 @@ public class PedidoController {
 
         try {
 
-            pedidoService.cambiarEstado(id, estado);
+            pedidoService.cambiarEstado(
+                    id,
+                    estado
+            );
 
             redirectAttributes.addFlashAttribute(
                     "mensaje",
-                    "Estado del pedido actualizado");
+                    "Estado del pedido actualizado"
+            );
 
         } catch (IllegalArgumentException e) {
 
             redirectAttributes.addFlashAttribute(
                     "error",
-                    e.getMessage());
+                    e.getMessage()
+            );
         }
 
         return "redirect:/admin/pedidos";
     }
 
-    private void cargarDatosFormulario(Model model) {
+    /**
+     * Registra como pagado un pedido cuyo método
+     * de pago es "Pago al retirar".
+     */
+    @PostMapping("/{id}/registrar-pago-retiro")
+    public String registrarPagoAlRetirar(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+
+            pedidoService
+                    .marcarPagoAlRetirarComoPagado(id);
+
+            redirectAttributes.addFlashAttribute(
+                    "mensaje",
+                    "El pago del pedido fue registrado correctamente"
+            );
+
+        } catch (IllegalArgumentException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    e.getMessage()
+            );
+        }
+
+        return "redirect:/admin/pedidos/ver/" + id;
+    }
+
+    private void cargarDatosFormulario(
+            Model model) {
 
         model.addAttribute(
                 "clientes",
-                clienteService.listarTodos());
+                clienteService.listarTodos()
+        );
 
         model.addAttribute(
                 "productos",
-                productoService.listarActivos());
+                productoService.listarActivos()
+        );
     }
 }

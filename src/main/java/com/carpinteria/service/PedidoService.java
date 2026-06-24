@@ -12,7 +12,9 @@ import com.carpinteria.dto.ItemPedidoFormulario;
 import com.carpinteria.dto.PedidoFormulario;
 import com.carpinteria.model.Cliente;
 import com.carpinteria.model.DetallePedido;
+import com.carpinteria.model.EstadoPago;
 import com.carpinteria.model.EstadoPedido;
+import com.carpinteria.model.MetodoPago;
 import com.carpinteria.model.Pedido;
 import com.carpinteria.model.Producto;
 import com.carpinteria.repository.ClienteRepository;
@@ -41,14 +43,24 @@ public class PedidoService {
     }
 
     public Pedido buscarPorId(Long id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "El identificador del pedido es inválido"
+            );
+        }
+
         return pedidoRepository.findById(id)
                 .orElseThrow(() ->
                         new IllegalArgumentException(
-                                "No se encontró el pedido"));
+                                "No se encontró el pedido"
+                        )
+                );
     }
 
     @Transactional
-    public Pedido crearPedido(PedidoFormulario formulario) {
+    public Pedido crearPedido(
+            PedidoFormulario formulario) {
 
         validarFormulario(formulario);
 
@@ -56,57 +68,86 @@ public class PedidoService {
                 .findById(formulario.getClienteId())
                 .orElseThrow(() ->
                         new IllegalArgumentException(
-                                "No se encontró el cliente"));
+                                "No se encontró el cliente"
+                        )
+                );
 
         validarCliente(cliente);
 
         Pedido pedido = new Pedido();
+
         pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
+
         pedido.setObservaciones(
                 normalizarObservaciones(
-                        formulario.getObservaciones()));
+                        formulario.getObservaciones()
+                )
+        );
 
-        Set<Long> productosAgregados = new HashSet<>();
+        Set<Long> productosAgregados =
+                new HashSet<>();
 
-        for (ItemPedidoFormulario item : formulario.getItems()) {
+        for (ItemPedidoFormulario item
+                : formulario.getItems()) {
 
             if (item == null) {
                 continue;
             }
 
-            Long productoId = item.getProductoId();
-            Integer cantidad = item.getCantidad();
+            Long productoId =
+                    item.getProductoId();
+
+            Integer cantidad =
+                    item.getCantidad();
 
             if (productoId == null) {
                 throw new IllegalArgumentException(
-                        "Debe seleccionar un producto en todas las filas");
+                        "Debe seleccionar un producto "
+                                + "en todas las filas"
+                );
             }
 
             if (!productosAgregados.add(productoId)) {
                 throw new IllegalArgumentException(
-                        "No puede agregar el mismo producto más de una vez");
+                        "No puede agregar el mismo producto "
+                                + "más de una vez"
+                );
             }
 
             Producto producto = productoRepository
                     .findById(productoId)
                     .orElseThrow(() ->
                             new IllegalArgumentException(
-                                    "No se encontró uno de los productos"));
+                                    "No se encontró uno "
+                                            + "de los productos"
+                            )
+                    );
 
             validarProducto(producto);
             validarCantidad(cantidad);
-            validarExistencias(producto, cantidad);
 
-            DetallePedido detalle = new DetallePedido();
+            validarExistencias(
+                    producto,
+                    cantidad
+            );
+
+            DetallePedido detalle =
+                    new DetallePedido();
+
             detalle.setProducto(producto);
             detalle.setCantidad(cantidad);
-            detalle.setPrecioUnitario(producto.getPrecio());
+
+            detalle.setPrecioUnitario(
+                    producto.getPrecio()
+            );
 
             pedido.agregarDetalle(detalle);
 
             producto.setCantidad(
-                    producto.getCantidad() - cantidad);
+                    producto.getCantidad()
+                            - cantidad
+            );
 
             productoRepository.save(producto);
         }
@@ -115,7 +156,9 @@ public class PedidoService {
                 || pedido.getDetalles().isEmpty()) {
 
             throw new IllegalArgumentException(
-                    "El pedido debe contener al menos un producto");
+                    "El pedido debe contener "
+                            + "al menos un producto"
+            );
         }
 
         pedido.calcularTotal();
@@ -132,19 +175,93 @@ public class PedidoService {
 
         if (nuevoEstado == null) {
             throw new IllegalArgumentException(
-                    "Debe seleccionar un estado válido");
+                    "Debe seleccionar un estado válido"
+            );
         }
 
-        if (pedido.getEstado() == EstadoPedido.CANCELADO) {
+        if (pedido.getEstado()
+                == EstadoPedido.CANCELADO) {
+
             throw new IllegalArgumentException(
-                    "No se puede modificar un pedido cancelado");
+                    "No se puede modificar "
+                            + "un pedido cancelado"
+            );
         }
 
-        if (nuevoEstado == EstadoPedido.CANCELADO) {
+        if (pedido.getEstado() == nuevoEstado) {
+            throw new IllegalArgumentException(
+                    "El pedido ya se encuentra "
+                            + "en el estado seleccionado"
+            );
+        }
+
+        if (nuevoEstado
+                == EstadoPedido.CANCELADO) {
+
             devolverExistencias(pedido);
         }
 
         pedido.setEstado(nuevoEstado);
+
+        pedidoRepository.save(pedido);
+    }
+
+    /**
+     * Registra el pago de un pedido que fue creado
+     * con la opción de pagar al retirar.
+     */
+    @Transactional
+    public void marcarPagoAlRetirarComoPagado(
+            Long id) {
+
+        Pedido pedido = buscarPorId(id);
+
+        if (pedido.getEstado()
+                == EstadoPedido.CANCELADO) {
+
+            throw new IllegalArgumentException(
+                    "No se puede registrar el pago "
+                            + "de un pedido cancelado"
+            );
+        }
+
+        if (pedido.getMetodoPago()
+                != MetodoPago.PAGO_AL_RETIRAR) {
+
+            throw new IllegalArgumentException(
+                    "Este pedido no utiliza "
+                            + "el método de pago al retirar"
+            );
+        }
+
+        if (pedido.getEstadoPago()
+                == EstadoPago.APROBADO_SIMULADO) {
+
+            throw new IllegalArgumentException(
+                    "El pago de este pedido "
+                            + "ya fue registrado"
+            );
+        }
+
+        if (pedido.getEstadoPago()
+                != EstadoPago.PENDIENTE) {
+
+            throw new IllegalArgumentException(
+                    "El pedido no tiene "
+                            + "un pago pendiente"
+            );
+        }
+
+        pedido.setEstadoPago(
+                EstadoPago.APROBADO_SIMULADO
+        );
+
+        pedido.setReferenciaPago(
+                generarReferenciaPagoRetiro(
+                        pedido.getId()
+                )
+        );
+
         pedidoRepository.save(pedido);
     }
 
@@ -153,35 +270,46 @@ public class PedidoService {
 
         if (formulario == null) {
             throw new IllegalArgumentException(
-                    "Los datos del pedido son inválidos");
+                    "Los datos del pedido son inválidos"
+            );
         }
 
         if (formulario.getClienteId() == null) {
             throw new IllegalArgumentException(
-                    "Debe seleccionar un cliente");
+                    "Debe seleccionar un cliente"
+            );
         }
 
         if (formulario.getItems() == null
                 || formulario.getItems().isEmpty()) {
 
             throw new IllegalArgumentException(
-                    "Debe agregar al menos un producto");
+                    "Debe agregar al menos un producto"
+            );
         }
     }
 
-    private void validarCliente(Cliente cliente) {
+    private void validarCliente(
+            Cliente cliente) {
 
-        if (!Boolean.TRUE.equals(cliente.getActivo())) {
+        if (!Boolean.TRUE.equals(
+                cliente.getActivo())) {
+
             throw new IllegalArgumentException(
-                    "El cliente seleccionado está inactivo");
+                    "El cliente seleccionado está inactivo"
+            );
         }
     }
 
-    private void validarProducto(Producto producto) {
+    private void validarProducto(
+            Producto producto) {
 
-        if (!Boolean.TRUE.equals(producto.getActivo())) {
+        if (!Boolean.TRUE.equals(
+                producto.getActivo())) {
+
             throw new IllegalArgumentException(
-                    "El producto seleccionado está inactivo");
+                    "El producto seleccionado está inactivo"
+            );
         }
 
         if (producto.getPrecio() == null
@@ -189,15 +317,20 @@ public class PedidoService {
                         .compareTo(BigDecimal.ZERO) < 0) {
 
             throw new IllegalArgumentException(
-                    "El producto tiene un precio inválido");
+                    "El producto tiene un precio inválido"
+            );
         }
     }
 
-    private void validarCantidad(Integer cantidad) {
+    private void validarCantidad(
+            Integer cantidad) {
 
-        if (cantidad == null || cantidad <= 0) {
+        if (cantidad == null
+                || cantidad <= 0) {
+
             throw new IllegalArgumentException(
-                    "La cantidad debe ser mayor que cero");
+                    "La cantidad debe ser mayor que cero"
+            );
         }
     }
 
@@ -205,16 +338,18 @@ public class PedidoService {
             Producto producto,
             Integer cantidad) {
 
-        int disponibles = producto.getCantidad() == null
-                ? 0
-                : producto.getCantidad();
+        int disponibles =
+                producto.getCantidad() == null
+                        ? 0
+                        : producto.getCantidad();
 
         if (cantidad > disponibles) {
             throw new IllegalArgumentException(
                     "No hay existencias suficientes para "
                             + producto.getNombre()
                             + ". Disponibles: "
-                            + disponibles);
+                            + disponibles
+            );
         }
     }
 
@@ -230,11 +365,23 @@ public class PedidoService {
         return observaciones.trim();
     }
 
-    private void devolverExistencias(Pedido pedido) {
+    private void devolverExistencias(
+            Pedido pedido) {
 
-        for (DetallePedido detalle : pedido.getDetalles()) {
+        if (pedido.getDetalles() == null) {
+            return;
+        }
 
-            Producto producto = detalle.getProducto();
+        for (DetallePedido detalle
+                : pedido.getDetalles()) {
+
+            Producto producto =
+                    detalle.getProducto();
+
+            if (producto == null
+                    || detalle.getCantidad() == null) {
+                continue;
+            }
 
             int existenciaActual =
                     producto.getCantidad() == null
@@ -243,9 +390,16 @@ public class PedidoService {
 
             producto.setCantidad(
                     existenciaActual
-                            + detalle.getCantidad());
+                            + detalle.getCantidad()
+            );
 
             productoRepository.save(producto);
         }
+    }
+
+    private String generarReferenciaPagoRetiro(
+            Long pedidoId) {
+
+        return "RETIRO-" + pedidoId;
     }
 }

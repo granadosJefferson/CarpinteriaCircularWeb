@@ -1,22 +1,32 @@
+
 package com.carpinteria.controller;
 
+import com.carpinteria.model.Cliente;
 import com.carpinteria.model.Usuario;
+import com.carpinteria.repository.ClienteRepository;
 import com.carpinteria.service.UsuarioService;
+
 import jakarta.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthController {
 
     private final UsuarioService usuarioService;
+    private final ClienteRepository clienteRepository;
 
-    public AuthController(UsuarioService usuarioService) {
+    public AuthController(
+            UsuarioService usuarioService,
+            ClienteRepository clienteRepository) {
+
         this.usuarioService = usuarioService;
+        this.clienteRepository = clienteRepository;
     }
 
     @GetMapping("/login")
@@ -25,7 +35,11 @@ public class AuthController {
             @RequestParam(required = false) String correo,
             Model model) {
 
-        model.addAttribute("redirect", obtenerDestinoSeguro(redirect));
+        model.addAttribute(
+                "redirect",
+                obtenerDestinoSeguro(redirect)
+        );
+
         model.addAttribute("correo", correo);
 
         return "login";
@@ -42,22 +56,41 @@ public class AuthController {
         String destino = obtenerDestinoSeguro(redirect);
 
         Usuario usuarioEncontrado =
-                usuarioService.iniciarSesion(correo, password);
+                usuarioService.iniciarSesion(
+                        correo,
+                        password
+                );
 
         if (usuarioEncontrado == null) {
+
             model.addAttribute(
                     "error",
                     "Correo o contraseña incorrectos"
             );
+
             model.addAttribute("correo", correo);
             model.addAttribute("redirect", destino);
 
             return "login";
         }
 
-        guardarUsuarioEnSesion(session, usuarioEncontrado);
+        /*
+         * Los usuarios CLIENTE deben tener también
+         * un registro en la tabla clientes.
+         *
+         * Esto corrige automáticamente usuarios antiguos
+         * que existen en usuarios, pero no en clientes.
+         */
+        if (esCliente(usuarioEncontrado)) {
+            obtenerOCrearCliente(usuarioEncontrado);
+        }
 
-        if ("ADMIN".equalsIgnoreCase(usuarioEncontrado.getRol())) {
+        guardarUsuarioEnSesion(
+                session,
+                usuarioEncontrado
+        );
+
+        if (esAdministrador(usuarioEncontrado)) {
             return "redirect:/admin";
         }
 
@@ -69,8 +102,15 @@ public class AuthController {
             @RequestParam(required = false) String redirect,
             Model model) {
 
-        model.addAttribute("usuario", new Usuario());
-        model.addAttribute("redirect", obtenerDestinoSeguro(redirect));
+        model.addAttribute(
+                "usuario",
+                new Usuario()
+        );
+
+        model.addAttribute(
+                "redirect",
+                obtenerDestinoSeguro(redirect)
+        );
 
         return "registro";
     }
@@ -79,8 +119,8 @@ public class AuthController {
     public String procesarRegistro(
             Usuario usuario,
             @RequestParam(required = false) String redirect,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+            HttpSession session,
+            Model model) {
 
         String destino = obtenerDestinoSeguro(redirect);
 
@@ -91,6 +131,7 @@ public class AuthController {
                     "error",
                     "El nombre es obligatorio"
             );
+
             model.addAttribute("redirect", destino);
 
             return "registro";
@@ -103,6 +144,7 @@ public class AuthController {
                     "error",
                     "El correo es obligatorio"
             );
+
             model.addAttribute("redirect", destino);
 
             return "registro";
@@ -115,6 +157,7 @@ public class AuthController {
                     "error",
                     "La contraseña debe tener al menos 6 caracteres"
             );
+
             model.addAttribute("redirect", destino);
 
             return "registro";
@@ -128,35 +171,61 @@ public class AuthController {
                     "error",
                     "Las contraseñas no coinciden"
             );
+
             model.addAttribute("redirect", destino);
 
             return "registro";
         }
+
+        /*
+         * Todo usuario que se registra desde la página pública
+         * será CLIENTE.
+         */
+        usuario.setRol("CLIENTE");
 
         boolean registrado =
                 usuarioService.registrarUsuario(usuario);
 
         if (!registrado) {
+
             model.addAttribute(
                     "error",
                     "El correo electrónico ya está registrado"
             );
+
             model.addAttribute("redirect", destino);
 
             return "registro";
         }
 
-        redirectAttributes.addFlashAttribute(
-                "exito",
-                "Cuenta creada correctamente. Ahora puede iniciar sesión."
-        );
-        redirectAttributes.addAttribute("redirect", destino);
-        redirectAttributes.addAttribute(
-                "correo",
-                usuario.getCorreo()
+        /*
+         * Busca nuevamente al usuario guardado para utilizar
+         * el registro persistido en la sesión.
+         */
+        Usuario usuarioRegistrado =
+                usuarioService.iniciarSesion(
+                        usuario.getCorreo(),
+                        usuario.getPassword()
+                );
+
+        if (usuarioRegistrado == null) {
+            usuarioRegistrado = usuario;
+        }
+
+        /*
+         * Crea automáticamente el cliente asociado.
+         */
+        obtenerOCrearCliente(usuarioRegistrado);
+
+        /*
+         * El registro también inicia la sesión automáticamente.
+         */
+        guardarUsuarioEnSesion(
+                session,
+                usuarioRegistrado
         );
 
-        return "redirect:/login";
+        return "redirect:" + destino;
     }
 
     @GetMapping("/perfil")
@@ -165,44 +234,128 @@ public class AuthController {
             Model model) {
 
         Usuario usuarioLogueado =
-                (Usuario) session.getAttribute("usuarioLogueado");
+                (Usuario) session.getAttribute(
+                        "usuarioLogueado"
+                );
 
         if (usuarioLogueado == null) {
             return "redirect:/login?redirect=/perfil";
         }
 
-        model.addAttribute("usuario", usuarioLogueado);
+        model.addAttribute(
+                "usuario",
+                usuarioLogueado
+        );
 
         return "perfil";
     }
 
     @GetMapping("/logout")
-    public String cerrarSesion(HttpSession session) {
+    public String cerrarSesion(
+            HttpSession session) {
+
         session.invalidate();
+
         return "redirect:/";
+    }
+
+    /**
+     * Busca un cliente usando el correo del usuario.
+     *
+     * Si todavía no existe, lo crea automáticamente.
+     * No genera duplicados porque el correo del cliente
+     * es único y primero se realiza la búsqueda.
+     */
+    private Cliente obtenerOCrearCliente(
+            Usuario usuario) {
+
+        String correo = usuario.getCorreo().trim();
+
+        return clienteRepository
+                .findByCorreoIgnoreCase(correo)
+                .orElseGet(() -> {
+
+                    Cliente cliente = new Cliente();
+
+                    cliente.setNombre(
+                            usuario.getNombre().trim()
+                    );
+
+                    cliente.setCorreo(correo);
+
+                    /*
+                     * Usuario todavía no posee teléfono.
+                     * Se utiliza un valor temporal para cumplir
+                     * con la columna obligatoria de Cliente.
+                     */
+                    cliente.setTelefono("Pendiente");
+
+                    cliente.setDireccion(null);
+                    cliente.setActivo(true);
+
+                    return clienteRepository.save(cliente);
+                });
+    }
+
+    private boolean esAdministrador(
+            Usuario usuario) {
+
+        return usuario != null
+                && "ADMIN".equalsIgnoreCase(
+                        usuario.getRol()
+                );
+    }
+
+    private boolean esCliente(
+            Usuario usuario) {
+
+        return usuario != null
+                && "CLIENTE".equalsIgnoreCase(
+                        usuario.getRol()
+                );
     }
 
     private void guardarUsuarioEnSesion(
             HttpSession session,
             Usuario usuario) {
 
-        session.setAttribute("usuarioLogueado", usuario);
-        session.setAttribute("correo", usuario.getCorreo());
-        session.setAttribute("nombre", usuario.getNombre());
-        session.setAttribute("rol", usuario.getRol());
+        session.setAttribute(
+                "usuarioLogueado",
+                usuario
+        );
+
+        session.setAttribute(
+                "correo",
+                usuario.getCorreo()
+        );
+
+        session.setAttribute(
+                "nombre",
+                usuario.getNombre()
+        );
+
+        session.setAttribute(
+                "rol",
+                usuario.getRol()
+        );
     }
 
-    private String obtenerDestinoSeguro(String redirect) {
+    private String obtenerDestinoSeguro(
+            String redirect) {
 
-        if (redirect == null || redirect.isBlank()) {
+        if (redirect == null
+                || redirect.isBlank()) {
+
             return "/catalogo";
         }
 
         if (redirect.startsWith("/")
                 && !redirect.startsWith("//")) {
+
             return redirect;
         }
 
         return "/catalogo";
     }
 }
+

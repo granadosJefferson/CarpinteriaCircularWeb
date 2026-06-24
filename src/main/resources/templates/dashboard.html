@@ -407,8 +407,13 @@
                         <div>
                             <div class="metric-label">Total vendido</div>
                             <div class="metric-value fs-4"
-                                 th:text="${'₡' + #numbers.formatDecimal(totalVendido, 1, 'COMMA', 2, 'POINT')}">
-                                ₡0.00
+                                 th:text="${'₡' + #numbers.formatDecimal(
+                                         totalVendido != null ? totalVendido : 0,
+                                         1,
+                                         'POINT',
+                                         0,
+                                         'COMMA')}">
+                                ₡0
                             </div>
                         </div>
                     </div>

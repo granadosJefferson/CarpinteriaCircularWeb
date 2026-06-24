@@ -35,8 +35,66 @@ public class Pedido {
     @Column(nullable = false, length = 30)
     private EstadoPedido estado;
 
+    /*
+     * Total de los productos sin incluir el envío.
+     */
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal subtotal = BigDecimal.ZERO;
+
+    /*
+     * Costo adicional por envío.
+     * Será ₡0 para retiro personal y ₡10 000 para envío.
+     */
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal costoEnvio = BigDecimal.ZERO;
+
+    /*
+     * Total definitivo:
+     * subtotal + costoEnvio.
+     */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private TipoEntrega tipoEntrega = TipoEntrega.RECOGER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private MetodoPago metodoPago = MetodoPago.TARJETA;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private EstadoPago estadoPago = EstadoPago.PENDIENTE;
+
+    /*
+     * Referencia generada para el pago simulado.
+     * Ejemplo: SIM-A12B34CD
+     */
+    @Column(length = 100)
+    private String referenciaPago;
+
+    /*
+     * Estos campos se utilizan únicamente cuando
+     * tipoEntrega es ENVIO.
+     */
+    @Column(length = 100)
+    private String provincia;
+
+    @Column(length = 100)
+    private String canton;
+
+    @Column(length = 100)
+    private String distrito;
+
+    @Column(length = 500)
+    private String direccionEntrega;
+
+    @Column(length = 30)
+    private String telefonoEntrega;
+
+    @Column(length = 500)
+    private String indicacionesEntrega;
 
     @Column(length = 500)
     private String observaciones;
@@ -57,6 +115,7 @@ public class Pedido {
 
     @PrePersist
     public void prepararPedido() {
+
         if (fecha == null) {
             fecha = LocalDateTime.now();
         }
@@ -65,25 +124,84 @@ public class Pedido {
             estado = EstadoPedido.PENDIENTE;
         }
 
+        if (tipoEntrega == null) {
+            tipoEntrega = TipoEntrega.RECOGER;
+        }
+
+        if (metodoPago == null) {
+            metodoPago = MetodoPago.TARJETA;
+        }
+
+        if (estadoPago == null) {
+            estadoPago = EstadoPago.PENDIENTE;
+        }
+
+        if (subtotal == null) {
+            subtotal = BigDecimal.ZERO;
+        }
+
+        if (costoEnvio == null) {
+            costoEnvio = BigDecimal.ZERO;
+        }
+
         if (total == null) {
-            total = BigDecimal.ZERO;
+            total = subtotal.add(costoEnvio);
         }
     }
 
     public void agregarDetalle(DetallePedido detalle) {
+
+        if (detalle == null) {
+            return;
+        }
+
         detalles.add(detalle);
         detalle.setPedido(this);
     }
 
     public void eliminarDetalle(DetallePedido detalle) {
+
+        if (detalle == null) {
+            return;
+        }
+
         detalles.remove(detalle);
         detalle.setPedido(null);
     }
 
+    /*
+     * Calcula nuevamente el subtotal a partir de los detalles
+     * y después suma el costo del envío.
+     */
     public void calcularTotal() {
-        total = detalles.stream()
+
+        subtotal = detalles.stream()
                 .map(DetallePedido::calcularSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (costoEnvio == null) {
+            costoEnvio = BigDecimal.ZERO;
+        }
+
+        total = subtotal.add(costoEnvio);
+    }
+
+    /*
+     * Permite configurar automáticamente el costo de entrega.
+     */
+    public void configurarCostoEntrega() {
+
+        if (tipoEntrega == TipoEntrega.ENVIO) {
+            costoEnvio = new BigDecimal("10000");
+        } else {
+            costoEnvio = BigDecimal.ZERO;
+        }
+
+        calcularTotal();
+    }
+
+    public boolean requiereEnvio() {
+        return tipoEntrega == TipoEntrega.ENVIO;
     }
 
     public Long getId() {
@@ -110,12 +228,114 @@ public class Pedido {
         this.estado = estado;
     }
 
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal != null
+                ? subtotal
+                : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getCostoEnvio() {
+        return costoEnvio;
+    }
+
+    public void setCostoEnvio(BigDecimal costoEnvio) {
+        this.costoEnvio = costoEnvio != null
+                ? costoEnvio
+                : BigDecimal.ZERO;
+    }
+
     public BigDecimal getTotal() {
         return total;
     }
 
     public void setTotal(BigDecimal total) {
-        this.total = total;
+        this.total = total != null
+                ? total
+                : BigDecimal.ZERO;
+    }
+
+    public TipoEntrega getTipoEntrega() {
+        return tipoEntrega;
+    }
+
+    public void setTipoEntrega(TipoEntrega tipoEntrega) {
+        this.tipoEntrega = tipoEntrega;
+    }
+
+    public MetodoPago getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void setMetodoPago(MetodoPago metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+
+    public EstadoPago getEstadoPago() {
+        return estadoPago;
+    }
+
+    public void setEstadoPago(EstadoPago estadoPago) {
+        this.estadoPago = estadoPago;
+    }
+
+    public String getReferenciaPago() {
+        return referenciaPago;
+    }
+
+    public void setReferenciaPago(String referenciaPago) {
+        this.referenciaPago = referenciaPago;
+    }
+
+    public String getProvincia() {
+        return provincia;
+    }
+
+    public void setProvincia(String provincia) {
+        this.provincia = provincia;
+    }
+
+    public String getCanton() {
+        return canton;
+    }
+
+    public void setCanton(String canton) {
+        this.canton = canton;
+    }
+
+    public String getDistrito() {
+        return distrito;
+    }
+
+    public void setDistrito(String distrito) {
+        this.distrito = distrito;
+    }
+
+    public String getDireccionEntrega() {
+        return direccionEntrega;
+    }
+
+    public void setDireccionEntrega(String direccionEntrega) {
+        this.direccionEntrega = direccionEntrega;
+    }
+
+    public String getTelefonoEntrega() {
+        return telefonoEntrega;
+    }
+
+    public void setTelefonoEntrega(String telefonoEntrega) {
+        this.telefonoEntrega = telefonoEntrega;
+    }
+
+    public String getIndicacionesEntrega() {
+        return indicacionesEntrega;
+    }
+
+    public void setIndicacionesEntrega(String indicacionesEntrega) {
+        this.indicacionesEntrega = indicacionesEntrega;
     }
 
     public String getObservaciones() {
@@ -139,6 +359,13 @@ public class Pedido {
     }
 
     public void setDetalles(List<DetallePedido> detalles) {
-        this.detalles = detalles;
+
+        this.detalles = detalles != null
+                ? detalles
+                : new ArrayList<>();
+
+        for (DetallePedido detalle : this.detalles) {
+            detalle.setPedido(this);
+        }
     }
 }
