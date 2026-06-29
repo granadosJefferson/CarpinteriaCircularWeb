@@ -721,6 +721,59 @@
             background: #1fb85a;
         }
 
+        .carrito-flotante {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 62px;
+            height: 62px;
+            z-index: 1045;
+            border: 0;
+            border-radius: 50%;
+            background: var(--amarillo);
+            color: var(--marron);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.45rem;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .carrito-flotante:hover,
+        .carrito-flotante:focus {
+            color: var(--marron);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.26);
+        }
+
+        .contador-carrito-flotante {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--verde-principal);
+            color: white;
+            border: 2px solid white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        @media (max-width: 576px) {
+            .carrito-flotante {
+                right: 16px;
+                bottom: 16px;
+                width: 56px;
+                height: 56px;
+            }
+        }
+
         @media (max-width: 991.98px) {
             .modal-producto-img {
                 min-height: 300px;
@@ -803,8 +856,8 @@
 
                 <div class="acciones-navbar ms-lg-2">
 
-                    <!-- El carrito se muestra únicamente cuando existe una sesión iniciada. -->
-                    <button th:if="${session.usuarioLogueado != null}"
+                    <!-- Shows the navbar cart only for authenticated customers. -->
+                    <button th:if="${session.usuarioLogueado != null and session.rol != null and #strings.equalsIgnoreCase(session.rol, 'CLIENTE')}"
                             type="button"
                             class="btn-carrito-nav"
                             data-bs-toggle="offcanvas"
@@ -818,7 +871,7 @@
                         </span>
                     </button>
 
-                    <!-- Visitante sin sesión. -->
+                    <!-- Shows the login action for unauthenticated visitors. -->
                     <a th:if="${session.usuarioLogueado == null}"
                        class="btn-login-nav"
                        th:href="@{/login(redirect='/catalogo')}">
@@ -841,16 +894,29 @@
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-usuario">
-                            <li>
+
+                            <!-- Gives administrators a permanent way back to the dashboard. -->
+                            <li th:if="${session.rol != null and #strings.equalsIgnoreCase(session.rol, 'ADMIN')}">
+                                <a class="dropdown-item"
+                                   th:href="@{/admin}">
+                                    <i class="bi bi-speedometer2 me-2"></i>
+                                    Panel administrativo
+                                </a>
+                            </li>
+
+                            <!-- Shows the customer profile only for client accounts. -->
+                            <li th:if="${session.rol != null and #strings.equalsIgnoreCase(session.rol, 'CLIENTE')}">
                                 <a class="dropdown-item"
                                    th:href="@{/perfil}">
                                     <i class="bi bi-person me-2"></i>
                                     Mi perfil
                                 </a>
                             </li>
+
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
+
                             <li>
                                 <a class="dropdown-item text-danger"
                                    th:href="@{/logout}">
@@ -900,9 +966,12 @@
                     </p>
                 </div>
 
-                <a th:href="@{/login}"
+                <a href="https://wa.me/50672833238?text=Hola%2C%20deseo%20solicitar%20una%20cotizaci%C3%B3n%20para%20un%20proyecto%20de%20carpinter%C3%ADa."
+                   target="_blank"
+                   rel="noopener noreferrer"
                    class="btn-yellow">
-                    Solicitar Presupuesto
+                    <i class="bi bi-whatsapp me-2"></i>
+                    Solicitar cotización
                 </a>
 
             </div>
@@ -1027,10 +1096,10 @@
                         </span>
 
                         <div class="pedido-overlay"
-                             th:if="${producto.cantidad == 0}">
+                             th:if="${producto.cantidad == null or producto.cantidad <= 0}">
 
                             <span>
-                                Bajo pedido
+                                Agotado
                             </span>
 
                         </div>
@@ -1078,15 +1147,22 @@
                             </span>
 
                             <span class="stock stock-pedido"
-                                  th:if="${producto.cantidad == 0}">
-                                Hecho bajo encargo
+                                  th:if="${producto.cantidad == null or producto.cantidad <= 0}">
+                                Agotado
                             </span>
 
-                            <a th:href="@{/login}"
+                            <a th:href="@{'https://wa.me/50672833238?text='
+                                + ${#uris.escapeQueryParam(
+                                    'Hola, deseo solicitar una cotización para el producto: '
+                                    + producto.nombre
+                                    + '.'
+                                )}}"
+                               target="_blank"
+                               rel="noopener noreferrer"
                                class="btn-solicitar">
 
-                                <i class="bi bi-plus-lg"></i>
-                                Solicitar
+                                <i class="bi bi-whatsapp"></i>
+                                Solicitar cotización
 
                             </a>
 
@@ -1202,8 +1278,7 @@
                             </div>
 
                             <p class="small text-muted mt-3 mb-0">
-                                El carrito todavía es una selección visual. No registra un pedido
-                                hasta que conectemos esta función con el módulo de pedidos.
+                                Las existencias se validan nuevamente al confirmar la compra.
                             </p>
 
                         </div>
@@ -1274,6 +1349,23 @@
         </div>
     </div>
 </div>
+
+<!-- Keeps the cart accessible while the customer browses the catalog. -->
+<button th:if="${session.usuarioLogueado != null and session.rol != null and #strings.equalsIgnoreCase(session.rol, 'CLIENTE')}"
+        type="button"
+        class="carrito-flotante"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#panelCarrito"
+        aria-controls="panelCarrito"
+        aria-label="Abrir carrito"
+        title="Ver carrito">
+    <i class="bi bi-cart3"></i>
+
+    <span id="contadorCarritoFlotante"
+          class="contador-carrito-flotante d-none">
+        0
+    </span>
+</button>
 
 <footer class="catalog-footer">
 
@@ -1425,11 +1517,18 @@
                 stock.innerHTML =
                     `<i class="bi bi-check-circle-fill"></i>
                      Disponible: ${productoActual.stock} unidades`;
+
+                btnAgregarCarrito.disabled = false;
+                btnAgregarCarrito.innerHTML =
+                    '<i class="bi bi-cart-plus"></i> Agregar al carrito';
             } else {
-                stock.className = "modal-producto-stock";
-                stock.style.color = "var(--marron)";
+                stock.className = "modal-producto-stock text-danger";
                 stock.innerHTML =
-                    '<i class="bi bi-hammer"></i> Disponible bajo encargo';
+                    '<i class="bi bi-x-circle-fill"></i> Producto agotado';
+
+                btnAgregarCarrito.disabled = true;
+                btnAgregarCarrito.innerHTML =
+                    '<i class="bi bi-cart-x"></i> Sin existencias';
             }
 
             const mensaje =
@@ -1441,15 +1540,13 @@
                 `https://wa.me/50672833238?text=${encodeURIComponent(mensaje)}`;
 
             mensajeCarrito.classList.add("d-none");
-            btnAgregarCarrito.innerHTML =
-                '<i class="bi bi-cart-plus"></i> Agregar al carrito';
 
             modalProducto.show();
         }
 
         elementosVista.forEach(elemento => {
             elemento.addEventListener("click", event => {
-                // Los enlaces y botones internos conservan su acción propia.
+                // Keeps internal links and buttons from opening the product modal.
                 if (event.target.closest("a, button")) {
                     return;
                 }
@@ -1492,7 +1589,7 @@
 
             let texto = String(precio ?? "0").trim();
 
-            // Permite valores como 25.000,00; 25000,00; 25,000.00 o 25000.
+            // Supports common Costa Rican and international price formats.
             if (texto.includes(",") && texto.includes(".")) {
                 if (texto.lastIndexOf(",") > texto.lastIndexOf(".")) {
                     texto = texto.replace(/\./g, "").replace(",", ".");
@@ -1523,41 +1620,104 @@
         }
 
         function actualizarContadorCarrito() {
-            const contador = document.getElementById("contadorCarrito");
-
-            if (!contador) {
-                return;
-            }
+            const contadores = [
+                document.getElementById("contadorCarrito"),
+                document.getElementById("contadorCarritoFlotante")
+            ].filter(Boolean);
 
             const totalUnidades = obtenerCarrito().reduce(
                 (total, item) => total + Number(item.cantidad || 1),
                 0
             );
 
-            contador.textContent = totalUnidades;
-            contador.classList.toggle("d-none", totalUnidades === 0);
+            contadores.forEach(contador => {
+                contador.textContent = totalUnidades;
+                contador.classList.toggle("d-none", totalUnidades === 0);
+            });
         }
 
+        /*
+         * Prevents the browser cart from exceeding the latest stock
+         * rendered from MySQL.
+         */
         function agregarAlCarrito(producto) {
+            const stockDisponible = Number(producto.stock || 0);
+
+            if (stockDisponible <= 0) {
+                alert("Este producto está agotado.");
+                return false;
+            }
+
             const carrito = obtenerCarrito();
             const existente = carrito.find(
                 item => String(item.id) === String(producto.id)
             );
 
             if (existente) {
-                existente.cantidad = Number(existente.cantidad || 1) + 1;
+                const nuevaCantidad =
+                    Number(existente.cantidad || 1) + 1;
+
+                if (nuevaCantidad > stockDisponible) {
+                    alert(
+                        `Solo hay ${stockDisponible} unidades disponibles.`
+                    );
+                    return false;
+                }
+
+                existente.cantidad = nuevaCantidad;
+                existente.stock = stockDisponible;
             } else {
                 carrito.push({
                     id: producto.id,
                     nombre: producto.nombre,
                     precio: normalizarPrecio(producto.precio),
                     imagen: producto.imagen,
-                    stock: Number(producto.stock || 0),
+                    stock: stockDisponible,
                     cantidad: 1
                 });
             }
 
             guardarCarrito(carrito);
+            return true;
+        }
+
+        /*
+         * Refreshes saved cart quantities with the stock currently
+         * rendered by the server after purchases or cancellations.
+         */
+        function sincronizarCarritoConStockActual() {
+            const stockActual = new Map();
+
+            document.querySelectorAll(".producto-vista").forEach(elemento => {
+                stockActual.set(
+                    String(elemento.dataset.id),
+                    Number(elemento.dataset.stock || 0)
+                );
+            });
+
+            const carritoSincronizado = obtenerCarrito()
+                .map(item => {
+                    const stock = stockActual.get(String(item.id));
+
+                    if (stock === undefined || stock <= 0) {
+                        return null;
+                    }
+
+                    return {
+                        ...item,
+                        stock,
+                        cantidad: Math.min(
+                            Number(item.cantidad || 1),
+                            stock
+                        )
+                    };
+                })
+                .filter(Boolean);
+
+            localStorage.setItem(
+                "carrito",
+                JSON.stringify(carritoSincronizado)
+            );
         }
 
         function renderizarCarrito() {
@@ -1759,6 +1919,7 @@ Total estimado: ${formatearColones(subtotal)}`;
             );
         }
 
+        sincronizarCarritoConStockActual();
         actualizarContadorCarrito();
         renderizarCarrito();
 
@@ -1776,11 +1937,16 @@ Total estimado: ${formatearColones(subtotal)}`;
             if (pendiente) {
                 try {
                     const productoPendiente = JSON.parse(pendiente);
-                    agregarAlCarrito(productoPendiente);
+                    const agregado =
+                        agregarAlCarrito(productoPendiente);
+
                     sessionStorage.removeItem("productoPendienteLogin");
-                    mostrarProductoAgregado(
-                        `"${productoPendiente.nombre}" fue agregado al carrito.`
-                    );
+
+                    if (agregado) {
+                        mostrarProductoAgregado(
+                            `"${productoPendiente.nombre}" fue agregado al carrito.`
+                        );
+                    }
                 } catch (error) {
                     sessionStorage.removeItem("productoPendienteLogin");
                 }
@@ -1802,10 +1968,14 @@ Total estimado: ${formatearColones(subtotal)}`;
                 return;
             }
 
-            agregarAlCarrito(productoActual);
-            mostrarProductoAgregado(
-                `"${productoActual.nombre}" fue agregado al carrito.`
-            );
+            const agregado =
+                agregarAlCarrito(productoActual);
+
+            if (agregado) {
+                mostrarProductoAgregado(
+                    `"${productoActual.nombre}" fue agregado al carrito.`
+                );
+            }
         });
     });
 </script>

@@ -1,3 +1,4 @@
+
 package com.carpinteria.service;
 
 import java.math.BigDecimal;
@@ -43,18 +44,9 @@ public class CheckoutService {
         this.clienteRepository = clienteRepository;
     }
 
-    /**
-     * Procesa una compra completa:
-     *
-     * 1. Valida el usuario y el carrito.
-     * 2. Busca el cliente asociado al correo del usuario.
-     * 3. Consulta los productos directamente en MySQL.
-     * 4. Valida disponibilidad y existencias.
-     * 5. Descuenta las existencias.
-     * 6. Crea el pedido y sus detalles.
-     * 7. Suma ₡10 000 cuando la entrega es por envío.
-     * 8. Configura el estado y la referencia del pago.
-     * 9. Guarda todo dentro de una transacción.
+    /*
+     * Validates the checkout, creates the order and updates stock
+     * inside a single database transaction.
      */
     @Transactional
     public Pedido procesarCompra(
@@ -125,6 +117,10 @@ public class CheckoutService {
         }
     }
 
+    /*
+     * Validates delivery and payment rules before modifying
+     * inventory or creating the order.
+     */
     private void validarFormulario(
             CheckoutFormulario formulario) {
 
@@ -194,21 +190,14 @@ public class CheckoutService {
                 );
     }
 
-    /**
-     * Agrupa productos repetidos del carrito.
-     *
-     * Ejemplo:
-     * producto 3, cantidad 1
-     * producto 3, cantidad 2
-     *
-     * Resultado:
-     * producto 3, cantidad 3
+    /*
+     * Groups repeated cart items by product and safely adds
+     * their requested quantities.
      */
     private Map<Long, Integer> consolidarProductos(
             CheckoutFormulario formulario) {
 
-        Map<Long, Integer> productos =
-                new LinkedHashMap<>();
+        Map<Long, Integer> productos = new LinkedHashMap<>();
 
         for (ItemCheckout item : formulario.getItems()) {
 
@@ -222,16 +211,38 @@ public class CheckoutService {
                 );
             }
 
-            productos.merge(
-                    item.getProductoId(),
-                    item.getCantidad(),
-                    Integer::sum
-            );
+            Long productoId = item.getProductoId();
+
+            int cantidadActual =
+                    productos.getOrDefault(productoId, 0);
+
+            try {
+                int cantidadConsolidada = Math.addExact(
+                        cantidadActual,
+                        item.getCantidad()
+                );
+
+                productos.put(
+                        productoId,
+                        cantidadConsolidada
+                );
+
+            } catch (ArithmeticException ex) {
+                throw new IllegalArgumentException(
+                        "La cantidad solicitada para un producto "
+                                + "es demasiado grande",
+                        ex
+                );
+            }
         }
 
         return productos;
     }
 
+    /*
+     * Creates the order header and copies the required
+     * customer delivery and payment information.
+     */
     private Pedido crearPedidoBase(
             CheckoutFormulario formulario,
             Cliente cliente) {
@@ -240,14 +251,8 @@ public class CheckoutService {
 
         pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
-
-        pedido.setTipoEntrega(
-                formulario.getTipoEntrega()
-        );
-
-        pedido.setMetodoPago(
-                formulario.getMetodoPago()
-        );
+        pedido.setTipoEntrega(formulario.getTipoEntrega());
+        pedido.setMetodoPago(formulario.getMetodoPago());
 
         configurarPago(
                 pedido,
@@ -285,6 +290,10 @@ public class CheckoutService {
         return pedido;
     }
 
+    /*
+     * Assigns the simulated payment status and reference
+     * according to the selected payment method.
+     */
     private void configurarPago(
             Pedido pedido,
             CheckoutFormulario formulario) {
@@ -345,6 +354,10 @@ public class CheckoutService {
                 );
     }
 
+    /*
+     * Confirms that the product is active, correctly priced
+     * and has enough stock for the requested quantity.
+     */
     private void validarProducto(
             Producto producto,
             Integer cantidadSolicitada) {
@@ -397,32 +410,40 @@ public class CheckoutService {
 
         detalle.setProducto(producto);
         detalle.setCantidad(cantidadSolicitada);
-
-        detalle.setPrecioUnitario(
-                producto.getPrecio()
-        );
+        detalle.setPrecioUnitario(producto.getPrecio());
 
         return detalle;
     }
 
+    /*
+     * Reserves the purchased units immediately after the
+     * order passes all product validations.
+     */
     private void descontarExistencias(
             Producto producto,
             Integer cantidadSolicitada) {
 
-        int nuevaCantidad =
-                producto.getCantidad()
-                        - cantidadSolicitada;
+        try {
+            int nuevaCantidad = Math.subtractExact(
+                    producto.getCantidad(),
+                    cantidadSolicitada
+            );
 
-        producto.setCantidad(nuevaCantidad);
+            producto.setCantidad(nuevaCantidad);
 
-        /*
-         * El producto está administrado por JPA dentro
-         * de la transacción, pero se guarda explícitamente
-         * para dejar clara la actualización.
-         */
-        productoRepository.save(producto);
+        } catch (ArithmeticException ex) {
+            throw new IllegalArgumentException(
+                    "No fue posible actualizar las existencias de "
+                            + producto.getNombre(),
+                    ex
+            );
+        }
     }
 
+    /*
+     * Applies the delivery fee and removes shipping data
+     * when the customer chooses store pickup.
+     */
     private void aplicarCostoEntrega(
             Pedido pedido,
             CheckoutFormulario formulario) {
@@ -435,12 +456,6 @@ public class CheckoutService {
         } else {
 
             pedido.setCostoEnvio(BigDecimal.ZERO);
-
-            /*
-             * Si se recoge personalmente, se eliminan
-             * datos de envío que pudieran llegar
-             * accidentalmente desde el navegador.
-             */
             pedido.setProvincia(null);
             pedido.setCanton(null);
             pedido.setDistrito(null);

@@ -1,3 +1,4 @@
+
 package com.carpinteria.controller;
 
 import java.util.List;
@@ -30,6 +31,10 @@ public class ProductoController {
         this.imagenService = imagenService;
     }
 
+    /*
+     * Loads current product data from MySQL so the catalog
+     * always reflects the latest stock after each purchase.
+     */
     @GetMapping("/catalogo")
     public String mostrarCatalogo(
             @RequestParam(required = false) String buscar,
@@ -39,25 +44,49 @@ public class ProductoController {
         List<Producto> productos;
 
         if (buscar != null && !buscar.isBlank()) {
-            productos = productoService.buscarPorNombre(buscar);
 
-        } else if (categoria != null && !categoria.isBlank()) {
-            productos = productoService.buscarPorCategoria(categoria);
+            productos = productoService.buscarPorNombre(
+                    buscar.trim()
+            );
+
+        } else if (categoria != null
+                && !categoria.isBlank()) {
+
+            productos = productoService.buscarPorCategoria(
+                    categoria.trim()
+            );
 
         } else {
+
             productos = productoService.listarActivos();
         }
 
+        /*
+         * Prevents inactive products from appearing even when
+         * search or category methods return mixed results.
+         */
         productos = productos.stream()
                 .filter(producto ->
-                        Boolean.TRUE.equals(producto.getActivo()))
+                        Boolean.TRUE.equals(
+                                producto.getActivo()
+                        )
+                )
                 .toList();
 
-        model.addAttribute("productos", productos);
-        model.addAttribute("buscar", buscar);
+        model.addAttribute(
+                "productos",
+                productos
+        );
+
+        model.addAttribute(
+                "buscar",
+                buscar
+        );
+
         model.addAttribute(
                 "categoriaSeleccionada",
-                categoria);
+                categoria
+        );
 
         return "catalogo";
     }
@@ -67,28 +96,41 @@ public class ProductoController {
 
         model.addAttribute(
                 "productos",
-                productoService.listarTodos());
+                productoService.listarTodos()
+        );
 
         return "admin/productos";
     }
 
     @GetMapping("/admin/productos/nuevo")
-    public String mostrarFormularioNuevo(Model model) {
+    public String mostrarFormularioNuevo(
+            Model model) {
 
         Producto producto = new Producto();
         producto.setActivo(true);
 
-        model.addAttribute("producto", producto);
+        model.addAttribute(
+                "producto",
+                producto
+        );
+
         model.addAttribute(
                 "titulo",
-                "Registrar producto");
+                "Registrar producto"
+        );
+
         model.addAttribute(
                 "accion",
-                "/admin/productos/guardar");
+                "/admin/productos/guardar"
+        );
 
         return "admin/producto-formulario";
     }
 
+    /*
+     * Removes the uploaded image if product persistence fails
+     * to avoid leaving orphan files on the server.
+     */
     @PostMapping("/admin/productos/guardar")
     public String guardarProducto(
             Producto producto,
@@ -101,35 +143,44 @@ public class ProductoController {
         String imagenGuardada = null;
 
         try {
+
             imagenGuardada =
-                    imagenService.guardar(imagenArchivo);
+                    imagenService.guardar(
+                            imagenArchivo
+                    );
 
-            producto.setImagen(imagenGuardada);
+            producto.setImagen(
+                    imagenGuardada
+            );
 
-            productoService.guardar(producto);
+            productoService.guardar(
+                    producto
+            );
 
             return "redirect:/admin/productos";
 
         } catch (IllegalArgumentException
                 | IllegalStateException e) {
 
-            /*
-             * Si el archivo se guardó, pero luego ocurrió
-             * un error al guardar el producto, se elimina
-             * para evitar imágenes huérfanas.
-             */
             if (imagenGuardada != null) {
+
                 try {
-                    imagenService.eliminar(imagenGuardada);
+
+                    imagenService.eliminar(
+                            imagenGuardada
+                    );
+
                 } catch (RuntimeException ignored) {
-                    // Se conserva el error original.
+
+                    // Keeps the original persistence error.
                 }
             }
 
             cargarFormularioNuevo(
                     model,
                     producto,
-                    e.getMessage());
+                    e.getMessage()
+            );
 
             return "admin/producto-formulario";
         }
@@ -140,22 +191,36 @@ public class ProductoController {
             @PathVariable Long id,
             Model model) {
 
-        Producto producto = productoService.buscarPorId(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "El producto no existe"));
+        Producto producto =
+                productoService.buscarPorId(id)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "El producto no existe"
+                                )
+                        );
 
-        model.addAttribute("producto", producto);
+        model.addAttribute(
+                "producto",
+                producto
+        );
+
         model.addAttribute(
                 "titulo",
-                "Editar producto");
+                "Editar producto"
+        );
+
         model.addAttribute(
                 "accion",
-                "/admin/productos/actualizar/" + id);
+                "/admin/productos/actualizar/" + id
+        );
 
         return "admin/producto-formulario";
     }
 
+    /*
+     * Replaces the previous image only after the product
+     * update has completed successfully in MySQL.
+     */
     @PostMapping("/admin/productos/actualizar/{id}")
     public String actualizarProducto(
             @PathVariable Long id,
@@ -170,7 +235,9 @@ public class ProductoController {
                 productoService.buscarPorId(id)
                         .orElseThrow(() ->
                                 new IllegalArgumentException(
-                                        "El producto no existe"));
+                                        "El producto no existe"
+                                )
+                        );
 
         String imagenAnterior =
                 productoExistente.getImagen();
@@ -178,41 +245,44 @@ public class ProductoController {
         String imagenNueva = null;
 
         try {
-            /*
-             * Si el usuario seleccionó una imagen nueva,
-             * se guarda. Si no, se conserva la anterior.
-             */
+
             if (imagenArchivo != null
                     && !imagenArchivo.isEmpty()) {
 
                 imagenNueva =
-                        imagenService.guardar(imagenArchivo);
+                        imagenService.guardar(
+                                imagenArchivo
+                        );
 
-                producto.setImagen(imagenNueva);
+                producto.setImagen(
+                        imagenNueva
+                );
 
             } else {
-                producto.setImagen(imagenAnterior);
+
+                producto.setImagen(
+                        imagenAnterior
+                );
             }
 
-            productoService.actualizar(id, producto);
+            productoService.actualizar(
+                    id,
+                    producto
+            );
 
-            /*
-             * La imagen anterior se elimina solamente
-             * después de que la actualización en MySQL
-             * fue realizada correctamente.
-             */
             if (imagenNueva != null
                     && imagenAnterior != null
                     && !imagenAnterior.isBlank()) {
 
                 try {
-                    imagenService.eliminar(imagenAnterior);
+
+                    imagenService.eliminar(
+                            imagenAnterior
+                    );
+
                 } catch (RuntimeException ignored) {
-                    /*
-                     * El producto ya fue actualizado.
-                     * No se cancela la operación si no se
-                     * pudo borrar el archivo anterior.
-                     */
+
+                    // Keeps the completed database update.
                 }
             }
 
@@ -222,25 +292,34 @@ public class ProductoController {
                 | IllegalStateException e) {
 
             /*
-             * Si la imagen nueva se guardó, pero la
-             * actualización falló, se elimina.
+             * Removes the new image when the database update
+             * fails and restores the previous form state.
              */
             if (imagenNueva != null) {
+
                 try {
-                    imagenService.eliminar(imagenNueva);
+
+                    imagenService.eliminar(
+                            imagenNueva
+                    );
+
                 } catch (RuntimeException ignored) {
-                    // Se conserva el error original.
+
+                    // Keeps the original update error.
                 }
             }
 
             producto.setId(id);
-            producto.setImagen(imagenAnterior);
+            producto.setImagen(
+                    imagenAnterior
+            );
 
             cargarFormularioEditar(
                     model,
                     producto,
                     id,
-                    e.getMessage());
+                    e.getMessage()
+            );
 
             return "admin/producto-formulario";
         }
@@ -255,27 +334,33 @@ public class ProductoController {
         return "redirect:/admin/productos";
     }
 
+    /*
+     * Deletes the database record before removing its image
+     * so failed persistence does not leave inconsistent data.
+     */
     @PostMapping("/admin/productos/eliminar/{id}")
     public String eliminarProducto(
             @PathVariable Long id) {
 
-        Producto producto = productoService.buscarPorId(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "El producto no existe"));
+        Producto producto =
+                productoService.buscarPorId(id)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "El producto no existe"
+                                )
+                        );
 
-        String imagen = producto.getImagen();
+        String imagen =
+                producto.getImagen();
 
-        /*
-         * Primero se elimina el registro de MySQL.
-         */
         productoService.eliminar(id);
 
-        /*
-         * Después se elimina el archivo físico.
-         */
-        if (imagen != null && !imagen.isBlank()) {
-            imagenService.eliminar(imagen);
+        if (imagen != null
+                && !imagen.isBlank()) {
+
+            imagenService.eliminar(
+                    imagen
+            );
         }
 
         return "redirect:/admin/productos";
@@ -286,16 +371,25 @@ public class ProductoController {
             Producto producto,
             String mensajeError) {
 
-        model.addAttribute("producto", producto);
+        model.addAttribute(
+                "producto",
+                producto
+        );
+
         model.addAttribute(
                 "titulo",
-                "Registrar producto");
+                "Registrar producto"
+        );
+
         model.addAttribute(
                 "accion",
-                "/admin/productos/guardar");
+                "/admin/productos/guardar"
+        );
+
         model.addAttribute(
                 "error",
-                mensajeError);
+                mensajeError
+        );
     }
 
     private void cargarFormularioEditar(
@@ -304,15 +398,25 @@ public class ProductoController {
             Long id,
             String mensajeError) {
 
-        model.addAttribute("producto", producto);
+        model.addAttribute(
+                "producto",
+                producto
+        );
+
         model.addAttribute(
                 "titulo",
-                "Editar producto");
+                "Editar producto"
+        );
+
         model.addAttribute(
                 "accion",
-                "/admin/productos/actualizar/" + id);
+                "/admin/productos/actualizar/" + id
+        );
+
         model.addAttribute(
                 "error",
-                mensajeError);
+                mensajeError
+        );
     }
 }
+

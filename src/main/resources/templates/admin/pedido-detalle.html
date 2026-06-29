@@ -1,14 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="es"
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Detalle del pedido | Carpintería Circular 360</title>
+    <title>
+        Detalle del pedido | Carpintería Circular 360
+    </title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
@@ -34,7 +36,11 @@
         }
 
         .navbar-admin {
-            background-color: var(--verde-oscuro);
+            background: linear-gradient(
+                135deg,
+                var(--verde-principal),
+                var(--verde-oscuro)
+            );
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
         }
 
@@ -61,16 +67,20 @@
                 var(--verde-principal),
                 var(--verde-oscuro)
             );
+
             border-radius: 18px;
-            padding: 2rem;
             color: white;
-            box-shadow: 0 8px 24px rgba(47, 67, 52, 0.18);
+
+            box-shadow:
+                0 8px 24px rgba(47, 67, 52, 0.18);
         }
 
         .tarjeta {
             border: none;
             border-radius: 16px;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
+
+            box-shadow:
+                0 5px 18px rgba(0, 0, 0, 0.07);
         }
 
         .titulo-tarjeta {
@@ -223,11 +233,14 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark navbar-admin">
+
     <div class="container-fluid px-lg-4">
 
         <a class="navbar-brand d-flex align-items-center gap-2"
            th:href="@{/admin}">
+
             <i class="bi bi-tree-fill"></i>
+
             Carpintería Circular 360
         </a>
 
@@ -238,6 +251,7 @@
                 aria-controls="menuAdmin"
                 aria-expanded="false"
                 aria-label="Abrir menú">
+
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -247,59 +261,80 @@
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
 
                 <li class="nav-item">
+
                     <a class="nav-link"
                        th:href="@{/admin}">
+
                         <i class="bi bi-grid me-1"></i>
                         Menú
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a class="nav-link"
                        th:href="@{/admin/productos}">
+
                         <i class="bi bi-box-seam me-1"></i>
                         Productos
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a class="nav-link"
                        th:href="@{/admin/clientes}">
+
                         <i class="bi bi-people me-1"></i>
                         Clientes
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a class="nav-link active"
                        th:href="@{/admin/pedidos}">
+
                         <i class="bi bi-receipt me-1"></i>
                         Pedidos
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a class="nav-link"
                        th:href="@{/admin/envios}">
+
                         <i class="bi bi-truck me-1"></i>
                         Envíos
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a class="nav-link"
                        th:href="@{/admin/reportes}">
+
                         <i class="bi bi-bar-chart me-1"></i>
                         Reportes
                     </a>
+
                 </li>
 
                 <li class="nav-item ms-lg-2">
+
                     <a class="btn btn-outline-light btn-sm"
                        th:href="@{/logout}">
+
                         <i class="bi bi-box-arrow-right me-1"></i>
                         Cerrar sesión
                     </a>
+
                 </li>
 
             </ul>
@@ -307,21 +342,25 @@
     </div>
 </nav>
 
-<main class="container py-4 py-lg-5">
+<main class="container-fluid px-3 px-lg-4 py-4">
 
-    <section class="encabezado-pagina mb-4">
+    <!-- Encabezado -->
+    <section class="encabezado-pagina p-4 p-lg-5 mb-4">
 
         <div class="row align-items-center g-3">
 
             <div class="col-lg">
 
                 <div class="d-flex align-items-center gap-2 mb-2">
+
                     <i class="bi bi-receipt-cutoff fs-3"></i>
 
                     <span class="badge bg-light text-dark"
                           th:text="${'Pedido #' + pedido.id}">
+
                         Pedido #1
                     </span>
+
                 </div>
 
                 <h1 class="h2 fw-bold mb-2">
@@ -338,6 +377,7 @@
 
                 <a class="btn btn-light"
                    th:href="@{/admin/pedidos}">
+
                     <i class="bi bi-arrow-left me-2"></i>
                     Volver a pedidos
                 </a>
@@ -346,39 +386,51 @@
         </div>
     </section>
 
+    <!-- Mensaje de éxito -->
     <div th:if="${mensaje != null}"
          class="alert alert-success alert-dismissible fade show"
          role="alert">
 
         <i class="bi bi-check-circle-fill me-2"></i>
-        <span th:text="${mensaje}"></span>
+
+        <span th:text="${mensaje}">
+            Operación realizada correctamente.
+        </span>
 
         <button type="button"
                 class="btn-close"
                 data-bs-dismiss="alert"
                 aria-label="Cerrar">
         </button>
+
     </div>
 
+    <!-- Mensaje de error -->
     <div th:if="${error != null}"
          class="alert alert-danger alert-dismissible fade show"
          role="alert">
 
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <span th:text="${error}"></span>
+
+        <span th:text="${error}">
+            Ocurrió un error.
+        </span>
 
         <button type="button"
                 class="btn-close"
                 data-bs-dismiss="alert"
                 aria-label="Cerrar">
         </button>
+
     </div>
 
     <!-- Información general -->
     <section class="card tarjeta mb-4">
+
         <div class="card-body p-4">
 
             <h2 class="titulo-tarjeta">
+
                 <i class="bi bi-info-circle me-2"></i>
                 Información general
             </h2>
@@ -386,6 +438,7 @@
             <div class="row g-3">
 
                 <div class="col-md-6 col-lg-3">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -394,6 +447,7 @@
 
                         <span class="dato-valor"
                               th:text="${pedido.id}">
+
                             1
                         </span>
 
@@ -401,6 +455,7 @@
                 </div>
 
                 <div class="col-md-6 col-lg-3">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -414,6 +469,7 @@
                                       'dd/MM/yyyy HH:mm'
                                   )
                                   : 'No disponible'}">
+
                             24/06/2026 10:00
                         </span>
 
@@ -421,23 +477,34 @@
                 </div>
 
                 <div class="col-md-6 col-lg-3">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
                             Estado del pedido
                         </span>
 
-                        <span class="badge badge-estado"
-                              th:classappend="${' estado-' + pedido.estado.name()}"
+                        <span th:if="${pedido.estado != null}"
+                              class="badge badge-estado"
+                              th:classappend="${' estado-'
+                                  + pedido.estado.name()}"
                               th:text="${pedido.estado.name()
                                   .replace('_', ' ')}">
+
                             PENDIENTE
+                        </span>
+
+                        <span th:if="${pedido.estado == null}"
+                              class="badge text-bg-secondary badge-estado">
+
+                            Sin estado
                         </span>
 
                     </div>
                 </div>
 
                 <div class="col-md-6 col-lg-3">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -455,6 +522,7 @@
                                       0,
                                       'COMMA'
                                   )}">
+
                             ₡0
                         </span>
 
@@ -465,11 +533,133 @@
         </div>
     </section>
 
+    <!-- Gestión del estado -->
+    <section class="card tarjeta mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="row align-items-center g-3">
+
+                <div class="col-lg">
+
+                    <h2 class="titulo-tarjeta mb-2">
+
+                        <i class="bi bi-arrow-repeat me-2"></i>
+                        Gestión del estado
+                    </h2>
+
+                    <p class="text-secondary mb-0">
+                        Actualiza el avance del pedido según las
+                        transiciones permitidas.
+                    </p>
+
+                </div>
+
+                <div class="col-lg-6"
+                     th:if="${estadosDisponibles != null
+                         and !estadosDisponibles.isEmpty()}">
+
+                    <form th:action="@{
+                            /admin/pedidos/estado/{id}(
+                                id=${pedido.id}
+                            )}"
+                          method="post"
+                          class="row g-2"
+                          onsubmit="return confirmarCambioEstado(this);">
+
+                        <div class="col-md">
+
+                            <label for="estado"
+                                   class="form-label visually-hidden">
+
+                                Nuevo estado
+                            </label>
+
+                            <select id="estado"
+                                    name="estado"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    Seleccione el nuevo estado
+                                </option>
+
+                                <option th:each="estado : ${estadosDisponibles}"
+                                        th:value="${estado.name()}"
+                                        th:text="${estado.name()
+                                            .replace('_', ' ')}">
+
+                                    EN PROCESO
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-auto">
+
+                            <button type="submit"
+                                    class="btn btn-madera w-100">
+
+                                <i class="bi bi-check2-circle me-2"></i>
+                                Actualizar estado
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <div class="col-lg-6"
+                     th:if="${estadosDisponibles == null
+                         or estadosDisponibles.isEmpty()}">
+
+                    <div class="alert alert-light border mb-0">
+
+                        <i class="bi bi-lock-fill me-2"></i>
+
+                        <span th:if="${pedido.estado != null
+                            and pedido.estado.name() == 'COMPLETADO'}">
+
+                            El pedido está completado y no admite
+                            más cambios de estado.
+                        </span>
+
+                        <span th:if="${pedido.estado != null
+                            and pedido.estado.name() == 'CANCELADO'}">
+
+                            El pedido está cancelado y no admite
+                            más cambios de estado.
+                        </span>
+
+                        <span th:if="${pedido.estado == null}">
+
+                            El pedido no tiene un estado válido.
+                        </span>
+
+                        <span th:if="${pedido.estado != null
+                            and pedido.estado.name() != 'COMPLETADO'
+                            and pedido.estado.name() != 'CANCELADO'}">
+
+                            No hay transiciones disponibles para el estado actual.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     <!-- Cliente -->
     <section class="card tarjeta mb-4">
+
         <div class="card-body p-4">
 
             <h2 class="titulo-tarjeta">
+
                 <i class="bi bi-person me-2"></i>
                 Cliente
             </h2>
@@ -477,6 +667,7 @@
             <div class="row g-3">
 
                 <div class="col-md-6">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -485,8 +676,11 @@
 
                         <span class="dato-valor"
                               th:text="${pedido.cliente != null
+                                  and pedido.cliente.nombre != null
+                                  and !pedido.cliente.nombre.isBlank()
                                   ? pedido.cliente.nombre
                                   : 'Cliente no disponible'}">
+
                             Cliente
                         </span>
 
@@ -494,6 +688,7 @@
                 </div>
 
                 <div class="col-md-6">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -502,8 +697,11 @@
 
                         <span class="dato-valor"
                               th:text="${pedido.cliente != null
+                                  and pedido.cliente.correo != null
+                                  and !pedido.cliente.correo.isBlank()
                                   ? pedido.cliente.correo
                                   : 'No disponible'}">
+
                             correo@ejemplo.com
                         </span>
 
@@ -511,6 +709,7 @@
                 </div>
 
                 <div class="col-md-6">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -523,6 +722,7 @@
                                   and !pedido.cliente.telefono.isBlank()
                                   ? pedido.cliente.telefono
                                   : 'No indicado'}">
+
                             No indicado
                         </span>
 
@@ -530,6 +730,7 @@
                 </div>
 
                 <div class="col-md-6">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -542,6 +743,7 @@
                                   and !pedido.cliente.direccion.isBlank()
                                   ? pedido.cliente.direccion
                                   : 'No indicada'}">
+
                             No indicada
                         </span>
 
@@ -552,15 +754,18 @@
         </div>
     </section>
 
-    <!-- Pago -->
+    <!-- Información del pago -->
     <section class="card tarjeta mb-4">
+
         <div class="card-body p-4">
 
             <div class="d-flex flex-column flex-md-row
-                        justify-content-between align-items-md-start
+                        justify-content-between
+                        align-items-md-start
                         gap-3 mb-3">
 
                 <h2 class="titulo-tarjeta mb-0">
+
                     <i class="bi bi-credit-card me-2"></i>
                     Información del pago
                 </h2>
@@ -575,7 +780,8 @@
                 </span>
 
                 <span th:if="${pedido.estadoPago != null
-                        and pedido.estadoPago.name() == 'PENDIENTE'}"
+                        and pedido.estadoPago.name()
+                        == 'PENDIENTE'}"
                       class="badge badge-estado estado-pago-pendiente">
 
                     <i class="bi bi-clock me-1"></i>
@@ -602,6 +808,7 @@
             <div class="row g-3">
 
                 <div class="col-md-4">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -614,16 +821,19 @@
                                   : ''}">
 
                             <span th:case="'TARJETA'">
+
                                 <i class="bi bi-credit-card me-1"></i>
                                 Tarjeta
                             </span>
 
                             <span th:case="'SINPE_MOVIL'">
+
                                 <i class="bi bi-phone me-1"></i>
                                 SINPE Móvil
                             </span>
 
                             <span th:case="'PAGO_AL_RETIRAR'">
+
                                 <i class="bi bi-cash-coin me-1"></i>
                                 Pago al retirar
                             </span>
@@ -638,6 +848,7 @@
                 </div>
 
                 <div class="col-md-4">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -650,6 +861,7 @@
                                       .replace('_SIMULADO', '')
                                       .replace('_', ' ')
                                   : 'No definido'}">
+
                             PENDIENTE
                         </span>
 
@@ -657,6 +869,7 @@
                 </div>
 
                 <div class="col-md-4">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -668,6 +881,7 @@
                                   and !pedido.referenciaPago.isBlank()
                                   ? pedido.referenciaPago
                                   : 'No aplica'}">
+
                             No aplica
                         </span>
 
@@ -682,15 +896,20 @@
                      and pedido.metodoPago.name()
                      == 'PAGO_AL_RETIRAR'
                      and pedido.estadoPago != null
-                     and pedido.estadoPago.name() == 'PENDIENTE'
+                     and pedido.estadoPago.name()
+                     == 'PENDIENTE'
                      and pedido.estado != null
-                     and pedido.estado.name() != 'CANCELADO'}">
+                     and (
+                         pedido.estado.name() == 'EN_PROCESO'
+                         or pedido.estado.name() == 'COMPLETADO'
+                     )}">
 
                 <div class="row align-items-center g-3">
 
                     <div class="col-md">
 
                         <div class="fw-bold mb-1">
+
                             <i class="bi bi-cash-stack me-2"></i>
                             Pago pendiente al retirar
                         </div>
@@ -713,6 +932,7 @@
 
                             <button type="submit"
                                     class="btn btn-madera">
+
                                 <i class="bi bi-check-circle me-2"></i>
                                 Registrar pago recibido
                             </button>
@@ -723,6 +943,7 @@
                 </div>
             </div>
 
+            <!-- Pago al retirar ya registrado -->
             <div class="alert alert-success mt-4 mb-0"
                  th:if="${pedido.metodoPago != null
                      and pedido.metodoPago.name()
@@ -732,19 +953,52 @@
                      == 'APROBADO_SIMULADO'}">
 
                 <i class="bi bi-check-circle-fill me-2"></i>
+
                 El pago realizado al retirar ya fue registrado.
+            </div>
+
+            <!-- Pago pendiente en un pedido cancelado -->
+            <div class="alert alert-secondary mt-4 mb-0"
+                 th:if="${pedido.metodoPago != null
+                     and pedido.metodoPago.name() == 'PAGO_AL_RETIRAR'
+                     and pedido.estadoPago != null
+                     and pedido.estadoPago.name() == 'PENDIENTE'
+                     and pedido.estado != null
+                     and pedido.estado.name() == 'CANCELADO'}">
+
+                <i class="bi bi-slash-circle-fill me-2"></i>
+
+                El pedido fue cancelado; el pago al retirar ya no puede registrarse.
+            </div>
+
+            <!-- Pago al retirar todavía no habilitado -->
+            <div class="alert alert-warning mt-4 mb-0"
+                 th:if="${pedido.metodoPago != null
+                     and pedido.metodoPago.name()
+                     == 'PAGO_AL_RETIRAR'
+                     and pedido.estadoPago != null
+                     and pedido.estadoPago.name()
+                     == 'PENDIENTE'
+                     and pedido.estado != null
+                     and pedido.estado.name() == 'PENDIENTE'}">
+
+                <i class="bi bi-info-circle-fill me-2"></i>
+
+                El pago podrá registrarse cuando el pedido pase
+                al estado EN PROCESO.
             </div>
 
         </div>
     </section>
 
-    <!-- Entrega -->
+    <!-- Información de entrega -->
     <section class="card tarjeta mb-4"
              th:if="${pedido.tipoEntrega != null}">
 
         <div class="card-body p-4">
 
             <h2 class="titulo-tarjeta">
+
                 <i class="bi bi-truck me-2"></i>
                 Información de entrega
             </h2>
@@ -752,6 +1006,7 @@
             <div class="row g-3">
 
                 <div class="col-md-6">
+
                     <div class="dato">
 
                         <span class="dato-etiqueta">
@@ -763,6 +1018,7 @@
                                   == 'ENVIO'
                                   ? 'Envío a domicilio'
                                   : 'Recoger personalmente'}">
+
                             Recoger personalmente
                         </span>
 
@@ -783,6 +1039,7 @@
                                   and !pedido.telefonoEntrega.isBlank()
                                   ? pedido.telefonoEntrega
                                   : 'No indicado'}">
+
                             No indicado
                         </span>
 
@@ -800,15 +1057,18 @@
 
                         <div class="dato-valor direccion-entrega">
 
-                            <span th:if="${pedido.provincia != null}"
+                            <span th:if="${pedido.provincia != null
+                                    and !pedido.provincia.isBlank()}"
                                   th:text="${pedido.provincia}">
                             </span>
 
-                            <span th:if="${pedido.canton != null}"
+                            <span th:if="${pedido.canton != null
+                                    and !pedido.canton.isBlank()}"
                                   th:text="${', ' + pedido.canton}">
                             </span>
 
-                            <span th:if="${pedido.distrito != null}"
+                            <span th:if="${pedido.distrito != null
+                                    and !pedido.distrito.isBlank()}"
                                   th:text="${', ' + pedido.distrito}">
                             </span>
 
@@ -818,7 +1078,20 @@
                                       + pedido.direccionEntrega}">
                             </span>
 
+                            <span th:if="${(pedido.provincia == null
+                                        or pedido.provincia.isBlank())
+                                    and (pedido.canton == null
+                                        or pedido.canton.isBlank())
+                                    and (pedido.distrito == null
+                                        or pedido.distrito.isBlank())
+                                    and (pedido.direccionEntrega == null
+                                        or pedido.direccionEntrega.isBlank())}">
+
+                                Dirección no indicada
+                            </span>
+
                         </div>
+
                     </div>
                 </div>
 
@@ -836,6 +1109,7 @@
                                   and !pedido.indicacionesEntrega.isBlank()
                                   ? pedido.indicacionesEntrega
                                   : 'Sin indicaciones adicionales'}">
+
                             Sin indicaciones adicionales
                         </span>
 
@@ -848,9 +1122,11 @@
 
     <!-- Productos -->
     <section class="card tarjeta mb-4">
+
         <div class="card-body p-4">
 
             <h2 class="titulo-tarjeta">
+
                 <i class="bi bi-box-seam me-2"></i>
                 Productos del pedido
             </h2>
@@ -860,12 +1136,25 @@
                 <table class="table align-middle mb-0">
 
                     <thead>
+
                     <tr>
-                        <th>Producto</th>
-                        <th class="text-center">Cantidad</th>
-                        <th class="text-end">Precio unitario</th>
-                        <th class="text-end">Subtotal</th>
+                        <th>
+                            Producto
+                        </th>
+
+                        <th class="text-center">
+                            Cantidad
+                        </th>
+
+                        <th class="text-end">
+                            Precio unitario
+                        </th>
+
+                        <th class="text-end">
+                            Subtotal
+                        </th>
                     </tr>
+
                     </thead>
 
                     <tbody>
@@ -873,16 +1162,22 @@
                     <tr th:each="detalle : ${pedido.detalles}">
 
                         <td>
+
                             <span class="fw-semibold"
                                   th:text="${detalle.producto != null
                                       ? detalle.producto.nombre
                                       : 'Producto no disponible'}">
+
                                 Producto
                             </span>
+
                         </td>
 
                         <td class="text-center"
-                            th:text="${detalle.cantidad}">
+                            th:text="${detalle.cantidad != null
+                                ? detalle.cantidad
+                                : 0}">
+
                             1
                         </td>
 
@@ -897,6 +1192,7 @@
                                     0,
                                     'COMMA'
                                 )}">
+
                             ₡0
                         </td>
 
@@ -905,12 +1201,24 @@
                                 + #numbers.formatDecimal(
                                     detalle.subtotal != null
                                         ? detalle.subtotal
-                                        : 0,
+                                        : (
+                                            detalle.precioUnitario != null
+                                            and detalle.cantidad != null
+                                            ? detalle.precioUnitario
+                                                .multiply(
+                                                    T(java.math.BigDecimal)
+                                                        .valueOf(
+                                                            detalle.cantidad
+                                                        )
+                                                )
+                                            : 0
+                                        ),
                                     1,
                                     'POINT',
                                     0,
                                     'COMMA'
                                 )}">
+
                             ₡0
                         </td>
 
@@ -923,17 +1231,21 @@
                             class="text-center text-secondary py-4">
 
                             <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+
                             Este pedido no contiene productos.
                         </td>
+
                     </tr>
 
                     </tbody>
                 </table>
             </div>
 
+            <!-- Resumen monetario -->
             <div class="resumen-total mt-4">
 
                 <div class="fila-resumen">
+
                     <span class="text-secondary">
                         Subtotal
                     </span>
@@ -943,29 +1255,30 @@
                               + #numbers.formatDecimal(
                                   pedido.subtotal != null
                                       ? pedido.subtotal
-                                      : (
-                                          pedido.costoEnvio != null
-                                          ? pedido.total
-                                              .subtract(pedido.costoEnvio)
-                                          : pedido.total
-                                      ),
+                                      : 0,
                                   1,
                                   'POINT',
                                   0,
                                   'COMMA'
                               )}">
+
                         ₡0
                     </span>
+
                 </div>
 
                 <div class="fila-resumen">
+
                     <span class="text-secondary">
                         Costo de envío
                     </span>
 
                     <span class="fw-semibold"
                           th:text="${pedido.costoEnvio != null
-                              and pedido.costoEnvio > 0
+                              and pedido.costoEnvio
+                                  .compareTo(
+                                      T(java.math.BigDecimal).ZERO
+                                  ) > 0
                               ? '₡'
                                   + #numbers.formatDecimal(
                                       pedido.costoEnvio,
@@ -975,13 +1288,17 @@
                                       'COMMA'
                                   )
                               : '₡0'}">
+
                         ₡0
                     </span>
+
                 </div>
 
                 <div class="fila-resumen fila-total">
 
-                    <span>Total</span>
+                    <span>
+                        Total
+                    </span>
 
                     <span th:text="${'₡'
                         + #numbers.formatDecimal(
@@ -993,19 +1310,23 @@
                             0,
                             'COMMA'
                         )}">
+
                         ₡0
                     </span>
 
                 </div>
             </div>
+
         </div>
     </section>
 
     <!-- Observaciones -->
     <section class="card tarjeta mb-4">
+
         <div class="card-body p-4">
 
             <h2 class="titulo-tarjeta">
+
                 <i class="bi bi-chat-left-text me-2"></i>
                 Observaciones
             </h2>
@@ -1016,6 +1337,7 @@
                    and !pedido.observaciones.isBlank()
                    ? pedido.observaciones
                    : 'El pedido no tiene observaciones.'}">
+
                 El pedido no tiene observaciones.
             </p>
 
@@ -1025,16 +1347,41 @@
 </main>
 
 <footer class="text-center py-4">
+
     <small>
         © 2026 Carpintería Circular 360
     </small>
+
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
 <script>
+    function confirmarCambioEstado(formulario) {
+
+        const selector = formulario.querySelector(
+            'select[name="estado"]'
+        );
+
+        if (!selector || !selector.value) {
+            return false;
+        }
+
+        const estadoLegible = selector.value.replaceAll(
+            "_",
+            " "
+        );
+
+        return confirm(
+            "¿Confirma que desea cambiar el pedido al estado "
+            + estadoLegible
+            + "?"
+        );
+    }
+
     function confirmarRegistroPago() {
+
         return confirm(
             "¿Confirma que recibió el pago completo de este pedido?"
         );
@@ -1043,4 +1390,3 @@
 
 </body>
 </html>
-

@@ -1,4 +1,3 @@
-
 package com.carpinteria.controller;
 
 import com.carpinteria.model.Cliente;
@@ -10,7 +9,6 @@ import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,6 +43,10 @@ public class AuthController {
         return "login";
     }
 
+    /*
+     * Starts the session and redirects each role to its
+     * correct destination.
+     */
     @PostMapping("/login")
     public String procesarLogin(
             @RequestParam String correo,
@@ -74,13 +76,6 @@ public class AuthController {
             return "login";
         }
 
-        /*
-         * Los usuarios CLIENTE deben tener también
-         * un registro en la tabla clientes.
-         *
-         * Esto corrige automáticamente usuarios antiguos
-         * que existen en usuarios, pero no en clientes.
-         */
         if (esCliente(usuarioEncontrado)) {
             obtenerOCrearCliente(usuarioEncontrado);
         }
@@ -115,6 +110,10 @@ public class AuthController {
         return "registro";
     }
 
+    /*
+     * Registers public accounts as clients and starts
+     * their session after a successful save.
+     */
     @PostMapping("/registro")
     public String procesarRegistro(
             Usuario usuario,
@@ -177,10 +176,6 @@ public class AuthController {
             return "registro";
         }
 
-        /*
-         * Todo usuario que se registra desde la página pública
-         * será CLIENTE.
-         */
         usuario.setRol("CLIENTE");
 
         boolean registrado =
@@ -198,10 +193,6 @@ public class AuthController {
             return "registro";
         }
 
-        /*
-         * Busca nuevamente al usuario guardado para utilizar
-         * el registro persistido en la sesión.
-         */
         Usuario usuarioRegistrado =
                 usuarioService.iniciarSesion(
                         usuario.getCorreo(),
@@ -212,14 +203,8 @@ public class AuthController {
             usuarioRegistrado = usuario;
         }
 
-        /*
-         * Crea automáticamente el cliente asociado.
-         */
         obtenerOCrearCliente(usuarioRegistrado);
 
-        /*
-         * El registro también inicia la sesión automáticamente.
-         */
         guardarUsuarioEnSesion(
                 session,
                 usuarioRegistrado
@@ -228,6 +213,10 @@ public class AuthController {
         return "redirect:" + destino;
     }
 
+    /*
+     * Keeps administrators out of the client profile and
+     * returns them to the administrative dashboard.
+     */
     @GetMapping("/perfil")
     public String mostrarPerfil(
             HttpSession session,
@@ -240,6 +229,10 @@ public class AuthController {
 
         if (usuarioLogueado == null) {
             return "redirect:/login?redirect=/perfil";
+        }
+
+        if (esAdministrador(usuarioLogueado)) {
+            return "redirect:/admin";
         }
 
         model.addAttribute(
@@ -259,12 +252,9 @@ public class AuthController {
         return "redirect:/";
     }
 
-    /**
-     * Busca un cliente usando el correo del usuario.
-     *
-     * Si todavía no existe, lo crea automáticamente.
-     * No genera duplicados porque el correo del cliente
-     * es único y primero se realiza la búsqueda.
+    /*
+     * Creates the client record only when no matching
+     * email exists in the customer table.
      */
     private Cliente obtenerOCrearCliente(
             Usuario usuario) {
@@ -282,14 +272,7 @@ public class AuthController {
                     );
 
                     cliente.setCorreo(correo);
-
-                    /*
-                     * Usuario todavía no posee teléfono.
-                     * Se utiliza un valor temporal para cumplir
-                     * con la columna obligatoria de Cliente.
-                     */
                     cliente.setTelefono("Pendiente");
-
                     cliente.setDireccion(null);
                     cliente.setActivo(true);
 
@@ -315,6 +298,10 @@ public class AuthController {
                 );
     }
 
+    /*
+     * Stores the complete user and the values used by
+     * Thymeleaf navigation in the active session.
+     */
     private void guardarUsuarioEnSesion(
             HttpSession session,
             Usuario usuario) {
@@ -340,6 +327,10 @@ public class AuthController {
         );
     }
 
+    /*
+     * Accepts only local application paths to prevent
+     * unsafe external redirects after authentication.
+     */
     private String obtenerDestinoSeguro(
             String redirect) {
 
@@ -358,4 +349,3 @@ public class AuthController {
         return "/catalogo";
     }
 }
-

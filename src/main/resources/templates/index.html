@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -5,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carpintería Circular 360</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 
-    <!-- Iconos -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
 
-    <!-- Fuentes similares al prototipo -->
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Literata:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Literata:wght@400;600;700&display=swap"
+          rel="stylesheet">
 
     <style>
         :root {
@@ -37,7 +38,10 @@
             overflow-x: hidden;
         }
 
-        h1, h2, h3, .font-serif {
+        h1,
+        h2,
+        h3,
+        .font-serif {
             font-family: "Literata", Georgia, serif;
         }
 
@@ -45,7 +49,7 @@
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(194, 201, 187, 0.35);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
         }
 
         .brand-logo {
@@ -104,7 +108,12 @@
             display: flex;
             align-items: center;
             overflow: hidden;
-            background: linear-gradient(90deg, #fafaf8 0%, #f7f7f4 55%, rgba(249,249,249,0.65) 100%);
+            background: linear-gradient(
+                    90deg,
+                    #fafaf8 0%,
+                    #f7f7f4 55%,
+                    rgba(249, 249, 249, 0.65) 100%
+            );
         }
 
         .hero-bg {
@@ -125,7 +134,12 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, #f9f9f9 0%, rgba(249,249,249,0.87) 55%, rgba(249,249,249,0.1) 100%);
+            background: linear-gradient(
+                    90deg,
+                    #f9f9f9 0%,
+                    rgba(249, 249, 249, 0.87) 55%,
+                    rgba(249, 249, 249, 0.1) 100%
+            );
         }
 
         .hero-content {
@@ -175,14 +189,14 @@
             text-transform: uppercase;
             letter-spacing: 0.08em;
             text-decoration: none;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
             transition: 0.2s;
         }
 
         .btn-yellow:hover {
             color: var(--marron);
             transform: translateY(-2px);
-            box-shadow: 0 12px 20px rgba(0,0,0,0.16);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.16);
         }
 
         .btn-outline-green {
@@ -204,32 +218,6 @@
             background: rgba(21, 66, 18, 0.05);
         }
 
-        .avatar-stack {
-            display: flex;
-            margin-right: 18px;
-        }
-
-        .avatar-circle {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 2px solid white;
-            background: #eeeeee;
-            overflow: hidden;
-            margin-left: -12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .avatar-circle:first-child {
-            margin-left: 0;
-        }
-
-        .avatar-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         .hero-circle-wrap {
             position: relative;
         }
@@ -247,11 +235,11 @@
             position: relative;
             width: 100%;
             max-width: 370px;
-            aspect-ratio: 1/1;
+            aspect-ratio: 1 / 1;
             border-radius: 50%;
             overflow: hidden;
             border: 12px solid white;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
             background: white;
             padding: 24px;
             margin: auto;
@@ -260,7 +248,7 @@
         .hero-circle img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
 
         .section-light {
@@ -296,20 +284,24 @@
             padding: 32px;
             border-radius: 16px;
             border: 1px solid rgba(194, 201, 187, 0.25);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.035);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.035);
             transition: 0.25s;
             height: 100%;
         }
 
         .purpose-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
         }
 
         .purpose-icon {
             width: 56px;
             height: 56px;
-            background: linear-gradient(145deg, rgba(188, 240, 174, 0.48), rgba(188, 240, 174, 0.2));
+            background: linear-gradient(
+                    145deg,
+                    rgba(188, 240, 174, 0.48),
+                    rgba(188, 240, 174, 0.2)
+            );
             color: var(--verde-principal);
             border: 1px solid rgba(21, 66, 18, 0.1);
             border-radius: 16px;
@@ -318,7 +310,7 @@
             align-items: center;
             font-size: 1.65rem;
             margin-bottom: 24px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
         }
 
         .purpose-card h3 {
@@ -369,18 +361,19 @@
 
         .wood-card {
             position: relative;
-            aspect-ratio: 1/1;
+            height: 460px;
             border-radius: 24px;
             overflow: hidden;
-            background: #eeeeee;
-            box-shadow: 0 22px 45px rgba(0,0,0,0.14);
+            background: #f3efe6;
+            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.14);
         }
 
         .wood-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: 0.6s;
+            object-position: center;
+            transition: transform 0.6s ease;
         }
 
         .wood-card:hover img {
@@ -391,12 +384,12 @@
             position: absolute;
             left: 24px;
             bottom: 24px;
-            background: rgba(255,255,255,0.92);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(8px);
             padding: 16px 20px;
             border-radius: 14px;
             border: 1px solid rgba(194, 201, 187, 0.3);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
         }
 
         .wood-label strong {
@@ -418,7 +411,7 @@
         .btn-green-dark {
             background: var(--verde-principal);
             color: white;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 15px 28px;
             border-radius: 10px;
             font-weight: 800;
@@ -440,7 +433,8 @@
             padding: 65px 0 30px;
         }
 
-        footer p, footer a {
+        footer p,
+        footer a {
             color: #c3c4ac;
             font-size: 0.93rem;
         }
@@ -465,35 +459,43 @@
             margin-bottom: 18px;
         }
 
-        .newsletter-input {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
+        .footer-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            min-height: 44px;
             border-radius: 10px;
-            padding: 10px 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.2s ease, background-color 0.2s ease;
         }
 
-        .newsletter-input::placeholder {
-            color: rgba(255,255,255,0.65);
-        }
-
-        .newsletter-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(188, 240, 174, 0.35);
-            background: rgba(255,255,255,0.12);
-            color: white;
-        }
-
-        .newsletter-btn {
+        .footer-action-primary {
             background: var(--verde-principal);
             color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 15px;
+        }
+
+        .footer-action-primary:hover {
+            background: var(--verde-oscuro);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer-action-secondary {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: white;
+        }
+
+        .footer-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateY(-2px);
         }
 
         .copyright {
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin-top: 45px;
             padding-top: 25px;
             color: rgba(195, 196, 172, 0.7);
@@ -513,10 +515,6 @@
             outline-offset: 3px;
         }
 
-        .hero-circle img {
-            object-fit: cover;
-        }
-
         .navbar-toggler {
             border-color: rgba(21, 66, 18, 0.25);
         }
@@ -531,7 +529,7 @@
                 padding: 14px;
                 background: rgba(255, 255, 255, 0.98);
                 border-radius: 14px;
-                box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+                box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
             }
 
             .nav-link.active {
@@ -560,6 +558,10 @@
                 font-size: 1.05rem;
             }
 
+            .wood-card {
+                height: 360px;
+            }
+
             .btn-yellow,
             .btn-outline-green,
             .btn-green-dark {
@@ -567,9 +569,23 @@
                 justify-content: center;
                 text-align: center;
             }
+        }
 
-            .brand-logo {
-                font-size: 1.05rem;
+        @media (max-width: 576px) {
+            .wood-card {
+                height: 310px;
+            }
+
+            .wood-label {
+                left: 14px;
+                right: 14px;
+                bottom: 14px;
+                padding: 12px 14px;
+            }
+
+            .wood-card .carousel-control-prev,
+            .wood-card .carousel-control-next {
+                width: 16%;
             }
         }
     </style>
@@ -579,26 +595,107 @@
 
 <header class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container">
-        <a class="brand-logo" th:href="@{/}" href="/" aria-label="Ir al inicio de Carpintería Circular 360">
+        <a class="brand-logo"
+           th:href="@{/}"
+           href="/"
+           aria-label="Ir al inicio de Carpintería Circular 360">
+
             <img th:src="@{/uploads/productos/logoColorBlancoVerde.jpeg}"
                  src="/uploads/productos/logoColorBlancoVerde.jpeg"
                  alt="Logo de Carpintería Circular 360">
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal" aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú de navegación">
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal"
+                aria-expanded="false"
+                aria-label="Abrir menú de navegación">
+
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="menuPrincipal">
             <nav class="navbar-nav ms-auto align-items-lg-center gap-lg-4">
-                <a class="nav-link active" th:href="@{/}" href="/">Inicio</a>
-                <a class="nav-link" th:href="@{/catalogo}" href="/catalogo">Catálogo</a>
-                <a class="nav-link" href="#proposito">Nosotros</a>
-                <a class="nav-link" href="#contacto">Contacto</a>
-               <a class="btn-admin ms-lg-2" th:href="@{/login}" href="/login">
-    <i class="bi bi-person-circle"></i>
-    Iniciar Sesión
-</a>
+                <a class="nav-link active"
+                   th:href="@{/}"
+                   href="/">
+                    Inicio
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/catalogo}"
+                   href="/catalogo">
+                    Catálogo
+                </a>
+
+                <a class="nav-link" href="#proposito">
+                    Nosotros
+                </a>
+
+                <a class="nav-link" href="#contacto">
+                    Contacto
+                </a>
+
+                <!-- The navigation changes according to the active server session. -->
+                <a class="btn-admin ms-lg-2"
+                   th:if="${session.usuarioLogueado == null}"
+                   th:href="@{/login}"
+                   href="/login">
+
+                    <i class="bi bi-person-circle"></i>
+                    Iniciar sesión
+                </a>
+
+                <div class="dropdown ms-lg-2"
+                     th:if="${session.usuarioLogueado != null}">
+
+                    <button class="btn-admin border-0 dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+
+                        <i class="bi bi-person-circle"></i>
+
+                        <span th:text="${session.nombre != null
+                                ? session.nombre
+                                : session.usuarioLogueado.nombre}">
+                            Usuario
+                        </span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+
+                        <!-- Gives administrators a permanent way back to the dashboard. -->
+                        <li th:if="${session.rol != null and #strings.equalsIgnoreCase(session.rol, 'ADMIN')}">
+                            <a class="dropdown-item"
+                               th:href="@{/admin}">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Panel administrativo
+                            </a>
+                        </li>
+
+                        <!-- Shows the customer profile only for client accounts. -->
+                        <li th:if="${session.rol != null and #strings.equalsIgnoreCase(session.rol, 'CLIENTE')}">
+                            <a class="dropdown-item"
+                               th:href="@{/perfil}">
+                                <i class="bi bi-person me-2"></i>
+                                Mi perfil
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a class="dropdown-item text-danger"
+                               th:href="@{/logout}">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Cerrar sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
         </div>
     </div>
@@ -615,6 +712,7 @@
 
         <div class="container hero-content">
             <div class="row align-items-center g-5">
+
                 <div class="col-lg-7">
                     <div class="badge-sostenible mb-4">
                         🌲 ARTESANÍA SOSTENIBLE
@@ -630,20 +728,32 @@
                     </p>
 
                     <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
-                        <a th:href="@{/catalogo}" href="/catalogo" class="btn-yellow">
+                        <a th:href="@{/catalogo}"
+                           href="/catalogo"
+                           class="btn-yellow">
                             Ver catálogo
                         </a>
 
-                        <a href="https://wa.me/#" target="_blank" class="btn-outline-green">
+                        <a href="https://wa.me/50672833238?text=Hola%2C%20deseo%20solicitar%20una%20cotizaci%C3%B3n%20para%20un%20proyecto%20de%20carpinter%C3%ADa."
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn-outline-green">
+
                             <i class="bi bi-whatsapp"></i>
                             Contactar por WhatsApp
                         </a>
                     </div>
 
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-house-heart-fill fs-4" style="color:#154212;" aria-hidden="true"></i>
+                        <i class="bi bi-house-heart-fill fs-4"
+                           style="color:#154212;"
+                           aria-hidden="true"></i>
+
                         <p class="mb-0 small text-muted">
-                            <strong style="color:#154212;">+500 familias</strong><br>
+                            <strong style="color:#154212;">
+                                +500 familias
+                            </strong>
+                            <br>
                             disfrutan de piezas únicas en sus hogares
                         </p>
                     </div>
@@ -652,6 +762,7 @@
                 <div class="col-lg-5 d-none d-lg-block">
                     <div class="hero-circle-wrap">
                         <div class="hero-circle-glow"></div>
+
                         <div class="hero-circle">
                             <img th:src="@{/uploads/productos/logoColorBlancoVerde.jpeg}"
                                  src="/uploads/productos/logoColorBlancoVerde.jpeg"
@@ -659,23 +770,36 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
-        <section id="proposito" class="section-light">
+    <section id="proposito" class="section-light">
         <div class="container">
+
             <div class="text-center mb-5">
-                <h2 class="section-title">Nuestro Propósito</h2>
+                <h2 class="section-title">
+                    Nuestro Propósito
+                </h2>
+
                 <div class="title-line"></div>
-                <p class="section-subtitle">Diseño Sostenible & Artesanía Circular</p>
+
+                <p class="section-subtitle">
+                    Diseño Sostenible & Artesanía Circular
+                </p>
             </div>
 
             <div class="row g-4">
+
                 <div class="col-md-4">
                     <div class="purpose-card">
-                        <div class="purpose-icon"><i class="bi bi-arrow-repeat"></i></div>
+                        <div class="purpose-icon">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+
                         <h3>Circularidad Total</h3>
+
                         <p>
                             Damos una segunda vida a maderas nobles recuperadas de demoliciones
                             y excedentes industriales, evitando la deforestación y el desperdicio.
@@ -685,8 +809,12 @@
 
                 <div class="col-md-4">
                     <div class="purpose-card">
-                        <div class="purpose-icon"><i class="bi bi-tools"></i></div>
+                        <div class="purpose-icon">
+                            <i class="bi bi-tools"></i>
+                        </div>
+
                         <h3>Maestría Artesanal</h3>
+
                         <p>
                             Cada pieza es única. Combinamos técnicas de carpintería tradicional
                             con un diseño contemporáneo para resaltar la veta y el alma de la madera.
@@ -696,14 +824,19 @@
 
                 <div class="col-md-4">
                     <div class="purpose-card">
-                        <div class="purpose-icon"><i class="bi bi-house-heart-fill"></i></div>
+                        <div class="purpose-icon">
+                            <i class="bi bi-house-heart-fill"></i>
+                        </div>
+
                         <h3>Hogar Consciente</h3>
+
                         <p>
                             Nuestros muebles no solo decoran, sino que cuentan una historia de respeto
                             por la naturaleza y compromiso con un futuro más verde.
                         </p>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -711,18 +844,23 @@
     <section id="catalogo" class="process-section">
         <div class="container">
             <div class="row align-items-center g-5">
+
                 <div class="col-lg-6">
-                    <span class="small-label mb-3 d-block">PROCESO CIRCULAR</span>
+                    <span class="small-label mb-3 d-block">
+                        PROCESO CIRCULAR
+                    </span>
 
                     <h2 class="section-title mb-4">
                         Piezas que cuentan historias reales de la naturaleza
                     </h2>
 
                     <p class="process-text mb-4">
-                        Madera rescatada, tratada con cera de abeja y terminada con acabados artesanales que resaltan su textura natural.
+                        Madera rescatada, tratada con cera de abeja y terminada con acabados
+                        artesanales que resaltan su textura natural.
                     </p>
 
                     <div class="row g-3">
+
                         <div class="col-sm-6">
                             <div class="check-item">
                                 <i class="bi bi-check-circle-fill"></i>
@@ -750,11 +888,16 @@
                                 Diseño Único
                             </div>
                         </div>
+
                     </div>
 
                     <div class="mt-5">
-                        <a th:href="@{/login}" href="/login" class="btn-yellow">
-                            Solicitar Presupuesto
+                        <a href="https://wa.me/50672833238?text=Hola%2C%20deseo%20solicitar%20una%20cotizaci%C3%B3n%20para%20un%20proyecto%20de%20carpinter%C3%ADa."
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn-yellow">
+
+                            Solicitar cotización
                         </a>
                     </div>
                 </div>
@@ -764,36 +907,51 @@
                         <img th:src="@{/uploads/productos/SobreDeMesaGrande.jpeg}"
                              src="/uploads/productos/SobreDeMesaGrande.jpeg"
                              alt="Sobre de mesa grande de madera artesanal">
+
                         <div class="wood-label">
-                            <strong>Sobre de Mesa Grande</strong><br>
+                            <strong>Sobre de Mesa Grande</strong>
+                            <br>
                             <span>Madera rescatada y acabada a mano</span>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
-        <section class="cta-section">
+    <section class="cta-section">
         <div class="container text-center">
             <div class="mx-auto" style="max-width: 850px;">
-                <h2 class="font-serif fw-bold mb-4" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+
+                <h2 class="font-serif fw-bold mb-4"
+                    style="font-size: clamp(2rem, 4vw, 2.8rem);">
                     ¿Tienes un proyecto en mente?
                 </h2>
 
-                <p class="mb-5" style="font-size: 1.12rem; color: rgba(255,255,255,0.9); line-height: 1.8;">
+                <p class="mb-5"
+                   style="font-size: 1.12rem; color: rgba(255,255,255,0.9); line-height: 1.8;">
+
                     Realizamos muebles a medida y proyectos especiales para hogares y empresas
                     que buscan diferenciarse con un sello de sostenibilidad y exclusividad.
                 </p>
 
                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                    <a th:href="@{/login}" href="/login" class="btn-yellow">
-                        Solicitar Presupuesto
+
+                    <a href="https://wa.me/50672833238?text=Hola%2C%20deseo%20solicitar%20una%20cotizaci%C3%B3n%20para%20un%20proyecto%20de%20carpinter%C3%ADa."
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="btn-yellow">
+
+                        Solicitar cotización
                     </a>
 
-                    <a th:href="@{/catalogo}" href="/catalogo" class="btn-green-dark">
+                    <a th:href="@{/catalogo}"
+                       href="/catalogo"
+                       class="btn-green-dark">
                         Explorar Catálogo
                     </a>
+
                 </div>
             </div>
         </div>
@@ -804,38 +962,51 @@
 <footer id="contacto">
     <div class="container">
         <div class="row g-5">
+
             <div class="col-md-4 text-center text-md-start">
-                <h4 class="font-serif fw-bold mb-3">🌲 Carpintería Circular 360</h4>
+                <h4 class="font-serif fw-bold mb-3">
+                    🌲 Carpintería Circular 360
+                </h4>
+
                 <p>
                     Dando nueva vida a la madera recuperada, creando hogares conscientes y duraderos.
                 </p>
             </div>
 
             <div class="col-md-4 text-center text-md-start">
-                <h5 class="footer-title">Enlaces Rápidos</h5>
-                <a href="#proposito">Sostenibilidad</a>
-                <a href="https://wa.me/#" target="_blank">Contactar WhatsApp</a>
-                <a href="#proposito">Términos y Condiciones</a>
-                <a href="#contacto">Privacidad</a>
-            </div>
+                <h5 class="footer-title">
+                    Explora y consulta
+                </h5>
 
-            <div class="col-md-4 text-center text-md-start">
-                <h5 class="footer-title">Newsletter</h5>
                 <p>
-                    Únete para recibir noticias sobre nuevos diseños y tips de cuidado de madera.
+                    Descubre nuestros productos disponibles o conversa con nosotros
+                    para solicitar una cotización personalizada.
                 </p>
 
-                <form class="d-flex gap-2" onsubmit="return false;" aria-label="Suscripción al boletín">
-                    <input type="email" class="form-control newsletter-input" placeholder="Tu correo electrónico" aria-label="Correo electrónico">
-                    <button type="button" class="newsletter-btn" aria-label="Suscribirse al boletín">
-                        <i class="bi bi-send-fill"></i>
-                    </button>
-                </form>
+                <!-- Provides direct actions instead of an inactive newsletter form. -->
+                <div class="d-grid gap-2">
+                    <a th:href="@{/catalogo}"
+                       href="/catalogo"
+                       class="footer-action footer-action-primary">
+                        <i class="bi bi-grid"></i>
+                        Ver catálogo
+                    </a>
+
+                    <a href="https://wa.me/50672833238?text=Hola%2C%20deseo%20solicitar%20una%20cotizaci%C3%B3n%20para%20un%20proyecto%20de%20carpinter%C3%ADa."
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="footer-action footer-action-secondary">
+                        <i class="bi bi-whatsapp"></i>
+                        Solicitar cotización
+                    </a>
+                </div>
             </div>
+
         </div>
 
         <div class="copyright">
-            © 2026 Carpintería Circular 360. Madera con propósito. Todos los derechos reservados.
+            © 2026 Carpintería Circular 360. Madera con propósito.
+            Todos los derechos reservados.
         </div>
     </div>
 </footer>

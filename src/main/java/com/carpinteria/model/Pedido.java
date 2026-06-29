@@ -18,11 +18,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "pedidos")
 public class Pedido {
+
+    private static final BigDecimal COSTO_ENVIO_FIJO =
+            new BigDecimal("10000.00");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,7 +73,7 @@ public class Pedido {
 
     /*
      * Referencia generada para el pago simulado.
-     * Ejemplo: SIM-A12B34CD
+     * Ejemplo: SIM-A12B34CD.
      */
     @Column(length = 100)
     private String referenciaPago;
@@ -113,12 +117,32 @@ public class Pedido {
     public Pedido() {
     }
 
+    /*
+     * Se ejecuta antes de insertar el pedido.
+     */
     @PrePersist
     public void prepararPedido() {
 
         if (fecha == null) {
             fecha = LocalDateTime.now();
         }
+
+        prepararValoresPredeterminados();
+        calcularTotal();
+    }
+
+    /*
+     * Mantiene los cálculos consistentes cuando
+     * el pedido se actualiza.
+     */
+    @PreUpdate
+    public void prepararActualizacion() {
+
+        prepararValoresPredeterminados();
+        calcularTotal();
+    }
+
+    private void prepararValoresPredeterminados() {
 
         if (estado == null) {
             estado = EstadoPedido.PENDIENTE;
@@ -145,14 +169,24 @@ public class Pedido {
         }
 
         if (total == null) {
-            total = subtotal.add(costoEnvio);
+            total = BigDecimal.ZERO;
+        }
+
+        if (detalles == null) {
+            detalles = new ArrayList<>();
         }
     }
 
     public void agregarDetalle(DetallePedido detalle) {
 
         if (detalle == null) {
-            return;
+            throw new IllegalArgumentException(
+                    "El detalle del pedido no puede ser nulo"
+            );
+        }
+
+        if (detalles == null) {
+            detalles = new ArrayList<>();
         }
 
         detalles.add(detalle);
@@ -161,38 +195,91 @@ public class Pedido {
 
     public void eliminarDetalle(DetallePedido detalle) {
 
-        if (detalle == null) {
+        if (detalle == null || detalles == null) {
             return;
         }
 
-        detalles.remove(detalle);
-        detalle.setPedido(null);
+        if (detalles.remove(detalle)) {
+            detalle.setPedido(null);
+        }
     }
 
     /*
-     * Calcula nuevamente el subtotal a partir de los detalles
-     * y después suma el costo del envío.
+     * Calcula:
+     *
+     * subtotal = suma de precio unitario × cantidad
+     * total = subtotal + costo de envío
      */
     public void calcularTotal() {
 
-        subtotal = detalles.stream()
-                .map(DetallePedido::calcularSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal subtotalCalculado = BigDecimal.ZERO;
 
-        if (costoEnvio == null) {
-            costoEnvio = BigDecimal.ZERO;
+        if (detalles != null) {
+
+            for (DetallePedido detalle : detalles) {
+
+                if (detalle == null) {
+                    continue;
+                }
+
+                BigDecimal precioUnitario =
+                        detalle.getPrecioUnitario();
+
+                Integer cantidad =
+                        detalle.getCantidad();
+
+                if (precioUnitario == null) {
+                    throw new IllegalStateException(
+                            "Un detalle del pedido no tiene precio unitario"
+                    );
+                }
+
+                if (precioUnitario.compareTo(BigDecimal.ZERO) < 0) {
+                    throw new IllegalStateException(
+                            "El precio unitario de un detalle no puede ser negativo"
+                    );
+                }
+
+                if (cantidad == null || cantidad <= 0) {
+                    throw new IllegalStateException(
+                            "La cantidad de un detalle debe ser mayor que cero"
+                    );
+                }
+
+                BigDecimal subtotalDetalle =
+                        precioUnitario.multiply(
+                                BigDecimal.valueOf(cantidad)
+                        );
+
+                subtotalCalculado =
+                        subtotalCalculado.add(subtotalDetalle);
+            }
         }
 
-        total = subtotal.add(costoEnvio);
+        BigDecimal envioSeguro =
+                costoEnvio != null
+                        ? costoEnvio
+                        : BigDecimal.ZERO;
+
+        if (envioSeguro.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalStateException(
+                    "El costo de envío no puede ser negativo"
+            );
+        }
+
+        this.subtotal = subtotalCalculado;
+        this.costoEnvio = envioSeguro;
+        this.total = subtotalCalculado.add(envioSeguro);
     }
 
     /*
-     * Permite configurar automáticamente el costo de entrega.
+     * Configura automáticamente el costo según
+     * el tipo de entrega seleccionado.
      */
     public void configurarCostoEntrega() {
 
         if (tipoEntrega == TipoEntrega.ENVIO) {
-            costoEnvio = new BigDecimal("10000");
+            costoEnvio = COSTO_ENVIO_FIJO;
         } else {
             costoEnvio = BigDecimal.ZERO;
         }
@@ -360,11 +447,31 @@ public class Pedido {
 
     public void setDetalles(List<DetallePedido> detalles) {
 
-        this.detalles = detalles != null
-                ? detalles
-                : new ArrayList<>();
+        /*
+         * Desconecta los detalles anteriores para mantener
+         * consistente la relación bidireccional.
+         */
+        if (this.detalles != null) {
+            for (DetallePedido detalleAnterior : this.detalles) {
+                if (detalleAnterior != null) {
+                    detalleAnterior.setPedido(null);
+                }
+            }
+        }
 
-        for (DetallePedido detalle : this.detalles) {
+        this.detalles = new ArrayList<>();
+
+        if (detalles == null) {
+            return;
+        }
+
+        for (DetallePedido detalle : detalles) {
+
+            if (detalle == null) {
+                continue;
+            }
+
+            this.detalles.add(detalle);
             detalle.setPedido(this);
         }
     }

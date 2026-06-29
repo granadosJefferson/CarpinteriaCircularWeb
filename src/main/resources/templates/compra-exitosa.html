@@ -234,9 +234,9 @@
         <div class="d-flex align-items-center gap-3 text-white">
 
             <span class="d-none d-md-inline"
-                  th:if="${usuario != null}">
+                  th:if="${session.usuarioLogueado != null}">
                 <i class="bi bi-person-circle me-1"></i>
-                <span th:text="${usuario.nombre}">
+                <span th:text="${session.usuarioLogueado.nombre}">
                     Cliente
                 </span>
             </span>
@@ -322,7 +322,7 @@
                                 <span class="dato-valor"
                                       th:text="${pedido.cliente != null
                                           ? pedido.cliente.nombre
-                                          : usuario.nombre}">
+                                          : (session.usuarioLogueado != null ? session.usuarioLogueado.nombre : 'No disponible')}">
                                     Nombre del cliente
                                 </span>
                             </div>
@@ -335,7 +335,7 @@
                                 <span class="dato-valor"
                                       th:text="${pedido.cliente != null
                                           ? pedido.cliente.correo
-                                          : usuario.correo}">
+                                          : (session.usuarioLogueado != null ? session.usuarioLogueado.correo : 'No disponible')}">
                                     cliente@correo.com
                                 </span>
                             </div>
@@ -607,7 +607,7 @@
                 <a class="btn btn-secundario"
                    th:href="@{/}">
                     <i class="bi bi-house-door me-2"></i>
-                    Ir al inicio
+                    Volver al inicio
                 </a>
 
             </div>
@@ -634,4 +634,3 @@
 
 </body>
 </html>
-
