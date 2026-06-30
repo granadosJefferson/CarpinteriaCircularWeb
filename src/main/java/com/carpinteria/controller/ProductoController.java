@@ -1,4 +1,3 @@
-
 package com.carpinteria.controller;
 
 import java.util.List;
@@ -183,12 +182,7 @@ public class ProductoController {
             Model model) {
 
         Producto producto =
-                productoService.buscarPorId(id)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "El producto no existe"
-                                )
-                        );
+                productoService.buscarPorId(id);
 
         model.addAttribute(
                 "producto",
@@ -219,12 +213,7 @@ public class ProductoController {
             Model model) {
 
         Producto productoExistente =
-                productoService.buscarPorId(id)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "El producto no existe"
-                                )
-                        );
+                productoService.buscarPorId(id);
 
         String imagenAnterior =
                 productoExistente.getImagen();
@@ -324,12 +313,7 @@ public class ProductoController {
             @PathVariable Long id) {
 
         Producto producto =
-                productoService.buscarPorId(id)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "El producto no existe"
-                                )
-                        );
+                productoService.buscarPorId(id);
 
         String imagen =
                 producto.getImagen();

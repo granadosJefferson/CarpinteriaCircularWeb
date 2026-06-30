@@ -102,6 +102,6 @@ public class CheckoutFormulario {
     }
 
     public void setItems(List<ItemCheckout> items) {
-        this.items = items;
+        this.items = items != null ? items : new ArrayList<>();
     }
 }

@@ -18,8 +18,8 @@ public class ProductoService {
     }
 
     public List<Producto> listarTodos() {
-        return productoRepository.findAllByOrderByNombreAsc();
-    }
+    return productoRepository.findAll();
+}
 
     public List<Producto> listarActivos() {
         return productoRepository.findByActivoTrueOrderByNombreAsc();
@@ -196,4 +196,11 @@ public class ProductoService {
 
         return texto.trim();
     }
+
+    @Transactional
+public void eliminar(Long id) {
+    Producto producto = buscarPorId(id);
+    productoRepository.delete(producto);
+}
+
 }
