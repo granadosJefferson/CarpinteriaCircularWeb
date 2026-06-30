@@ -343,9 +343,7 @@
 </nav>
 
 <main class="container-fluid px-3 px-lg-4 py-4">
-
-    <!-- Encabezado -->
-    <section class="encabezado-pagina p-4 p-lg-5 mb-4">
+<section class="encabezado-pagina p-4 p-lg-5 mb-4">
 
         <div class="row align-items-center g-3">
 
@@ -385,9 +383,7 @@
             </div>
         </div>
     </section>
-
-    <!-- Mensaje de éxito -->
-    <div th:if="${mensaje != null}"
+<div th:if="${mensaje != null}"
          class="alert alert-success alert-dismissible fade show"
          role="alert">
 
@@ -404,9 +400,7 @@
         </button>
 
     </div>
-
-    <!-- Mensaje de error -->
-    <div th:if="${error != null}"
+<div th:if="${error != null}"
          class="alert alert-danger alert-dismissible fade show"
          role="alert">
 
@@ -423,9 +417,7 @@
         </button>
 
     </div>
-
-    <!-- Información general -->
-    <section class="card tarjeta mb-4">
+<section class="card tarjeta mb-4">
 
         <div class="card-body p-4">
 
@@ -532,8 +524,7 @@
             </div>
         </div>
     </section>
-
-    <!-- Gestión del estado -->
+<!-- Displays only the order transitions allowed by the current status. -->
     <section class="card tarjeta mb-4">
 
         <div class="card-body p-4">
@@ -652,9 +643,7 @@
             </div>
         </div>
     </section>
-
-    <!-- Cliente -->
-    <section class="card tarjeta mb-4">
+<section class="card tarjeta mb-4">
 
         <div class="card-body p-4">
 
@@ -753,9 +742,7 @@
             </div>
         </div>
     </section>
-
-    <!-- Información del pago -->
-    <section class="card tarjeta mb-4">
+<section class="card tarjeta mb-4">
 
         <div class="card-body p-4">
 
@@ -889,8 +876,7 @@
                 </div>
 
             </div>
-
-            <!-- Acción de pago al retirar -->
+<!-- Enables payment registration only for eligible pay-on-pickup orders. -->
             <div class="alerta-pago p-3 mt-4"
                  th:if="${pedido.metodoPago != null
                      and pedido.metodoPago.name()
@@ -942,9 +928,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Pago al retirar ya registrado -->
-            <div class="alert alert-success mt-4 mb-0"
+<div class="alert alert-success mt-4 mb-0"
                  th:if="${pedido.metodoPago != null
                      and pedido.metodoPago.name()
                      == 'PAGO_AL_RETIRAR'
@@ -956,9 +940,7 @@
 
                 El pago realizado al retirar ya fue registrado.
             </div>
-
-            <!-- Pago pendiente en un pedido cancelado -->
-            <div class="alert alert-secondary mt-4 mb-0"
+<div class="alert alert-secondary mt-4 mb-0"
                  th:if="${pedido.metodoPago != null
                      and pedido.metodoPago.name() == 'PAGO_AL_RETIRAR'
                      and pedido.estadoPago != null
@@ -970,9 +952,7 @@
 
                 El pedido fue cancelado; el pago al retirar ya no puede registrarse.
             </div>
-
-            <!-- Pago al retirar todavía no habilitado -->
-            <div class="alert alert-warning mt-4 mb-0"
+<div class="alert alert-warning mt-4 mb-0"
                  th:if="${pedido.metodoPago != null
                      and pedido.metodoPago.name()
                      == 'PAGO_AL_RETIRAR'
@@ -990,9 +970,7 @@
 
         </div>
     </section>
-
-    <!-- Información de entrega -->
-    <section class="card tarjeta mb-4"
+<section class="card tarjeta mb-4"
              th:if="${pedido.tipoEntrega != null}">
 
         <div class="card-body p-4">
@@ -1119,9 +1097,7 @@
             </div>
         </div>
     </section>
-
-    <!-- Productos -->
-    <section class="card tarjeta mb-4">
+<section class="card tarjeta mb-4">
 
         <div class="card-body p-4">
 
@@ -1196,6 +1172,7 @@
                             ₡0
                         </td>
 
+                        <!-- Calculates the subtotal when the persisted value is unavailable. -->
                         <td class="text-end fw-semibold"
                             th:text="${'₡'
                                 + #numbers.formatDecimal(
@@ -1240,9 +1217,7 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Resumen monetario -->
-            <div class="resumen-total mt-4">
+<div class="resumen-total mt-4">
 
                 <div class="fila-resumen">
 
@@ -1319,9 +1294,7 @@
 
         </div>
     </section>
-
-    <!-- Observaciones -->
-    <section class="card tarjeta mb-4">
+<section class="card tarjeta mb-4">
 
         <div class="card-body p-4">
 
@@ -1357,6 +1330,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
+<!-- Confirms irreversible order status and payment operations. -->
 <script>
     function confirmarCambioEstado(formulario) {
 

@@ -1,6 +1,7 @@
 package com.carpinteria.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,15 +16,32 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ImagenService {
 
+    private static final long TAMANO_MAXIMO = 10 * 1024 * 1024;
+
     private static final Set<String> TIPOS_PERMITIDOS = Set.of(
             "image/jpeg",
             "image/png",
             "image/webp"
     );
 
+    private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of(
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp"
+    );
+
     private final Path directorioImagenes;
 
-    public ImagenService(@Value("${app.upload.dir}") String uploadDir) {
+    public ImagenService(
+            @Value("${app.upload.dir}") String uploadDir) {
+
+        if (uploadDir == null || uploadDir.isBlank()) {
+            throw new IllegalStateException(
+                    "La carpeta de imágenes no está configurada"
+            );
+        }
+
         this.directorioImagenes = Paths.get(uploadDir)
                 .toAbsolutePath()
                 .normalize();
@@ -38,17 +56,15 @@ public class ImagenService {
         }
     }
 
+    // Validates and stores an uploaded image using a unique file name.
     public String guardar(MultipartFile archivo) {
 
         if (archivo == null || archivo.isEmpty()) {
             return null;
         }
 
-        if (!TIPOS_PERMITIDOS.contains(archivo.getContentType())) {
-            throw new IllegalArgumentException(
-                    "Solo se permiten imágenes JPG, PNG o WEBP"
-            );
-        }
+        validarTamano(archivo);
+        validarTipoContenido(archivo);
 
         String nombreOriginal = archivo.getOriginalFilename();
 
@@ -58,22 +74,19 @@ public class ImagenService {
             );
         }
 
-        String extension = obtenerExtension(nombreOriginal);
+        String nombreSeguro = Paths.get(nombreOriginal)
+                .getFileName()
+                .toString();
+
+        String extension = obtenerExtension(nombreSeguro);
         String nombreNuevo = UUID.randomUUID() + extension;
 
-        Path destino = directorioImagenes
-                .resolve(nombreNuevo)
-                .normalize();
+        Path destino = resolverRutaSegura(nombreNuevo);
 
-        if (!destino.getParent().equals(directorioImagenes)) {
-            throw new IllegalArgumentException(
-                    "La ruta del archivo no es válida"
-            );
-        }
+        try (InputStream entrada = archivo.getInputStream()) {
 
-        try {
             Files.copy(
-                    archivo.getInputStream(),
+                    entrada,
                     destino,
                     StandardCopyOption.REPLACE_EXISTING
             );
@@ -88,21 +101,24 @@ public class ImagenService {
         }
     }
 
+    // Deletes an image only when it belongs to the configured upload directory.
     public void eliminar(String nombreImagen) {
 
         if (nombreImagen == null || nombreImagen.isBlank()) {
             return;
         }
 
-        Path archivo = directorioImagenes
-                .resolve(nombreImagen)
-                .normalize();
+        if (!Paths.get(nombreImagen)
+                .getFileName()
+                .toString()
+                .equals(nombreImagen)) {
 
-        if (!archivo.getParent().equals(directorioImagenes)) {
             throw new IllegalArgumentException(
-                    "La ruta de la imagen no es válida"
+                    "El nombre de la imagen no es válido"
             );
         }
+
+        Path archivo = resolverRutaSegura(nombreImagen);
 
         try {
             Files.deleteIfExists(archivo);
@@ -114,11 +130,52 @@ public class ImagenService {
         }
     }
 
+    private void validarTamano(MultipartFile archivo) {
+
+        if (archivo.getSize() > TAMANO_MAXIMO) {
+            throw new IllegalArgumentException(
+                    "La imagen no puede superar los 10 MB"
+            );
+        }
+    }
+
+    private void validarTipoContenido(MultipartFile archivo) {
+
+        String tipoContenido = archivo.getContentType();
+
+        if (tipoContenido == null
+                || !TIPOS_PERMITIDOS.contains(tipoContenido)) {
+
+            throw new IllegalArgumentException(
+                    "Solo se permiten imágenes JPG, PNG o WEBP"
+            );
+        }
+    }
+
+    private Path resolverRutaSegura(String nombreArchivo) {
+
+        Path ruta = directorioImagenes
+                .resolve(nombreArchivo)
+                .normalize();
+
+        if (!ruta.startsWith(directorioImagenes)
+                || !directorioImagenes.equals(ruta.getParent())) {
+
+            throw new IllegalArgumentException(
+                    "La ruta del archivo no es válida"
+            );
+        }
+
+        return ruta;
+    }
+
     private String obtenerExtension(String nombreArchivo) {
 
-        int posicionPunto = nombreArchivo.lastIndexOf(".");
+        int posicionPunto = nombreArchivo.lastIndexOf('.');
 
-        if (posicionPunto < 0) {
+        if (posicionPunto < 0
+                || posicionPunto == nombreArchivo.length() - 1) {
+
             throw new IllegalArgumentException(
                     "La imagen debe tener una extensión válida"
             );
@@ -128,8 +185,7 @@ public class ImagenService {
                 .substring(posicionPunto)
                 .toLowerCase();
 
-        if (!Set.of(".jpg", ".jpeg", ".png", ".webp")
-                .contains(extension)) {
+        if (!EXTENSIONES_PERMITIDAS.contains(extension)) {
             throw new IllegalArgumentException(
                     "La extensión de la imagen no está permitida"
             );

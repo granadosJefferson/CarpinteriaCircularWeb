@@ -41,6 +41,7 @@ public class CheckoutController {
 
         Usuario usuario = obtenerUsuarioSesion(session);
 
+        // Prevents access to the checkout without an active session.
         if (usuario == null) {
             return "redirect:/login?redirect=/checkout";
         }
@@ -69,6 +70,7 @@ public class CheckoutController {
         }
 
         try {
+            // Delegates validation, order creation and stock deduction to the service.
             Pedido pedido = checkoutService.procesarCompra(
                     formulario,
                     usuario
@@ -124,10 +126,7 @@ public class CheckoutController {
                         )
                 );
 
-        /*
-         * Evita que un usuario autenticado consulte
-         * pedidos pertenecientes a otro cliente.
-         */
+        // Prevents authenticated users from viewing orders owned by another client.
         if (pedido.getCliente() == null
                 || pedido.getCliente().getCorreo() == null
                 || !pedido.getCliente()
@@ -143,6 +142,7 @@ public class CheckoutController {
         return "compra-exitosa";
     }
 
+    // Retrieves the authenticated user and verifies the expected session type.
     private Usuario obtenerUsuarioSesion(
             HttpSession session) {
 

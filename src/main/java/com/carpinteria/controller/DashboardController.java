@@ -1,3 +1,4 @@
+
 package com.carpinteria.controller;
 
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class DashboardController {
 
         String rol = (String) session.getAttribute("rol");
 
+        // Restricts the administrative dashboard to authenticated administrators.
         if (!"ADMIN".equals(rol)) {
             return "redirect:/login";
         }
@@ -65,6 +67,7 @@ public class DashboardController {
                         EstadoPedido.COMPLETADO
                 );
 
+        // Prevents null totals when there are no completed orders.
         if (totalVendido == null) {
             totalVendido = BigDecimal.ZERO;
         }
@@ -102,3 +105,4 @@ public class DashboardController {
         return "dashboard";
     }
 }
+

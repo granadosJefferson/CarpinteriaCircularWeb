@@ -7,6 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "usuarios")
@@ -16,25 +19,43 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 120, message = "El nombre no puede superar los 120 caracteres")
+    @Column(nullable = false, length = 120)
     private String nombre;
 
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "El correo es obligatorio")
+    @Email(message = "Ingrese un correo electrónico válido")
+    @Size(max = 150, message = "El correo no puede superar los 150 caracteres")
+    @Column(nullable = false, unique = true, length = 150)
     private String correo;
 
-    @Column(nullable = false)
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(
+            min = 6,
+            max = 255,
+            message = "La contraseña debe tener entre 6 y 255 caracteres"
+    )
+    @Column(nullable = false, length = 255)
     private String password;
 
     @Transient
     private String confirmarPassword;
 
-    @Column(nullable = false)
+    @NotBlank(message = "El rol es obligatorio")
+    @Size(max = 30, message = "El rol no puede superar los 30 caracteres")
+    @Column(nullable = false, length = 30)
     private String rol;
 
     public Usuario() {
     }
 
-    public Usuario(String nombre, String correo, String password, String rol) {
+    public Usuario(
+            String nombre,
+            String correo,
+            String password,
+            String rol) {
+
         this.nombre = nombre;
         this.correo = correo;
         this.password = password;

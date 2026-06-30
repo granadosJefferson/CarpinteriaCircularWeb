@@ -1,6 +1,8 @@
+
 CREATE DATABASE IF NOT EXISTS carpinteria_circular;
 USE carpinteria_circular;
 
+-- Stores authentication credentials and the role used for access control.
 CREATE TABLE IF NOT EXISTS usuarios (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     correo VARCHAR(255) NOT NULL UNIQUE,
@@ -30,6 +32,7 @@ CREATE TABLE IF NOT EXISTS productos (
     precio DECIMAL(10,2) NOT NULL
 );
 
+-- Each order belongs to one registered client.
 CREATE TABLE IF NOT EXISTS pedidos (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     estado ENUM(
@@ -48,6 +51,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
         REFERENCES clientes(id)
 );
 
+-- Resolves the many-to-many relationship between orders and products.
 CREATE TABLE IF NOT EXISTS detalle_pedido (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cantidad INT NOT NULL,
@@ -64,6 +68,7 @@ CREATE TABLE IF NOT EXISTS detalle_pedido (
         REFERENCES productos(id)
 );
 
+-- The unique foreign key guarantees that an order has at most one shipment.
 CREATE TABLE IF NOT EXISTS envios (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     direccion_entrega VARCHAR(300) NOT NULL,
@@ -86,3 +91,4 @@ CREATE TABLE IF NOT EXISTS envios (
         FOREIGN KEY (pedido_id)
         REFERENCES pedidos(id)
 );
+

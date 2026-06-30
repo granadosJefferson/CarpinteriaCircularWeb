@@ -10,7 +10,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     long countByActivoTrue();
 
-    List<Producto> findByActivoTrue();
+    List<Producto> findByActivoTrueOrderByNombreAsc();
 
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
 

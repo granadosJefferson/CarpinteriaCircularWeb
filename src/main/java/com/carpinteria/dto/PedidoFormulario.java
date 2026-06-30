@@ -34,7 +34,7 @@ public class PedidoFormulario {
     }
 
     public void setItems(List<ItemPedidoFormulario> items) {
-        this.items = items;
+        this.items = items != null ? items : new ArrayList<>();
     }
 
     public void agregarItem() {

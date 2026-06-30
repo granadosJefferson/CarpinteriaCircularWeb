@@ -31,10 +31,7 @@ public class ProductoController {
         this.imagenService = imagenService;
     }
 
-    /*
-     * Loads current product data from MySQL so the catalog
-     * always reflects the latest stock after each purchase.
-     */
+    // Loads current database values so stock remains synchronized.
     @GetMapping("/catalogo")
     public String mostrarCatalogo(
             @RequestParam(required = false) String buscar,
@@ -61,10 +58,7 @@ public class ProductoController {
             productos = productoService.listarActivos();
         }
 
-        /*
-         * Prevents inactive products from appearing even when
-         * search or category methods return mixed results.
-         */
+        // Ensures inactive products never appear in public search results.
         productos = productos.stream()
                 .filter(producto ->
                         Boolean.TRUE.equals(
@@ -127,10 +121,6 @@ public class ProductoController {
         return "admin/producto-formulario";
     }
 
-    /*
-     * Removes the uploaded image if product persistence fails
-     * to avoid leaving orphan files on the server.
-     */
     @PostMapping("/admin/productos/guardar")
     public String guardarProducto(
             Producto producto,
@@ -162,6 +152,7 @@ public class ProductoController {
         } catch (IllegalArgumentException
                 | IllegalStateException e) {
 
+            // Removes the uploaded file when product persistence fails.
             if (imagenGuardada != null) {
 
                 try {
@@ -172,7 +163,7 @@ public class ProductoController {
 
                 } catch (RuntimeException ignored) {
 
-                    // Keeps the original persistence error.
+                    // Preserves the original persistence error.
                 }
             }
 
@@ -217,10 +208,6 @@ public class ProductoController {
         return "admin/producto-formulario";
     }
 
-    /*
-     * Replaces the previous image only after the product
-     * update has completed successfully in MySQL.
-     */
     @PostMapping("/admin/productos/actualizar/{id}")
     public String actualizarProducto(
             @PathVariable Long id,
@@ -270,6 +257,7 @@ public class ProductoController {
                     producto
             );
 
+            // Deletes the previous image only after the database update succeeds.
             if (imagenNueva != null
                     && imagenAnterior != null
                     && !imagenAnterior.isBlank()) {
@@ -282,7 +270,7 @@ public class ProductoController {
 
                 } catch (RuntimeException ignored) {
 
-                    // Keeps the completed database update.
+                    // Preserves the completed database update.
                 }
             }
 
@@ -291,10 +279,7 @@ public class ProductoController {
         } catch (IllegalArgumentException
                 | IllegalStateException e) {
 
-            /*
-             * Removes the new image when the database update
-             * fails and restores the previous form state.
-             */
+            // Removes the new file when the database update fails.
             if (imagenNueva != null) {
 
                 try {
@@ -305,7 +290,7 @@ public class ProductoController {
 
                 } catch (RuntimeException ignored) {
 
-                    // Keeps the original update error.
+                    // Preserves the original update error.
                 }
             }
 
@@ -334,10 +319,6 @@ public class ProductoController {
         return "redirect:/admin/productos";
     }
 
-    /*
-     * Deletes the database record before removing its image
-     * so failed persistence does not leave inconsistent data.
-     */
     @PostMapping("/admin/productos/eliminar/{id}")
     public String eliminarProducto(
             @PathVariable Long id) {
@@ -353,6 +334,7 @@ public class ProductoController {
         String imagen =
                 producto.getImagen();
 
+        // Deletes the database record before removing its stored image.
         productoService.eliminar(id);
 
         if (imagen != null
@@ -419,4 +401,3 @@ public class ProductoController {
         );
     }
 }
-

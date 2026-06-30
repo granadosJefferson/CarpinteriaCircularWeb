@@ -2,8 +2,12 @@ package com.carpinteria.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.annotation.PostConstruct;
 
 import com.carpinteria.model.Usuario;
 import com.carpinteria.repository.UsuarioRepository;
@@ -13,27 +17,46 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final String correoAdministrador;
+    private final String passwordAdministrador;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            @Value("${app.admin.email:admin@carpinteria.com}")
+            String correoAdministrador,
+            @Value("${app.admin.password:1234}")
+            String passwordAdministrador) {
 
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
-
-        crearAdministradorInicial();
+        this.correoAdministrador = correoAdministrador;
+        this.passwordAdministrador = passwordAdministrador;
     }
 
-    private void crearAdministradorInicial() {
+    // Creates the initial administrator only when no account uses its email.
+    @PostConstruct
+    public void crearAdministradorInicial() {
 
-        String correoAdmin = "admin@carpinteria.com";
+        String correoNormalizado =
+                normalizarCorreo(correoAdministrador);
 
-        if (!usuarioRepository.existsByCorreoIgnoreCase(correoAdmin)) {
+        if (correoNormalizado == null
+                || passwordAdministrador == null
+                || passwordAdministrador.isBlank()) {
+
+            throw new IllegalStateException(
+                    "Las credenciales del administrador no están configuradas"
+            );
+        }
+
+        if (!usuarioRepository
+                .existsByCorreoIgnoreCase(correoNormalizado)) {
 
             Usuario administrador = new Usuario(
                     "Administrador",
-                    correoAdmin,
-                    passwordEncoder.encode("1234"),
+                    correoNormalizado,
+                    passwordEncoder.encode(passwordAdministrador),
                     "ADMIN"
             );
 
@@ -41,23 +64,30 @@ public class UsuarioService {
         }
     }
 
+    // Registers a unique client account with an encrypted password.
+    @Transactional
     public boolean registrarUsuario(Usuario usuario) {
 
-        if (usuario.getCorreo() == null || usuario.getCorreo().isBlank()) {
+        if (usuario == null) {
             return false;
         }
 
-        String correoNormalizado =
-                usuario.getCorreo().trim().toLowerCase();
+        normalizarDatos(usuario);
 
-        if (usuarioRepository.existsByCorreoIgnoreCase(correoNormalizado)) {
+        if (!datosRegistroValidos(usuario)) {
             return false;
         }
 
-        usuario.setCorreo(correoNormalizado);
+        if (usuarioRepository.existsByCorreoIgnoreCase(
+                usuario.getCorreo())) {
+
+            return false;
+        }
+
         usuario.setPassword(
                 passwordEncoder.encode(usuario.getPassword())
         );
+
         usuario.setRol("CLIENTE");
 
         usuarioRepository.save(usuario);
@@ -67,24 +97,33 @@ public class UsuarioService {
 
     public Usuario buscarPorCorreo(String correo) {
 
-        if (correo == null || correo.isBlank()) {
+        String correoNormalizado = normalizarCorreo(correo);
+
+        if (correoNormalizado == null) {
             return null;
         }
 
         return usuarioRepository
-                .findByCorreoIgnoreCase(correo.trim())
+                .findByCorreoIgnoreCase(correoNormalizado)
                 .orElse(null);
     }
 
-    public Usuario iniciarSesion(String correo, String password) {
+    // Authenticates the account by comparing the submitted and encrypted passwords.
+    public Usuario iniciarSesion(
+            String correo,
+            String password) {
+
+        if (password == null || password.isBlank()) {
+            return null;
+        }
 
         Usuario usuario = buscarPorCorreo(correo);
 
         if (usuario != null
+                && usuario.getPassword() != null
                 && passwordEncoder.matches(
                         password,
-                        usuario.getPassword()
-                )) {
+                        usuario.getPassword())) {
 
             return usuario;
         }
@@ -94,5 +133,37 @@ public class UsuarioService {
 
     public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
+    }
+
+    private boolean datosRegistroValidos(Usuario usuario) {
+
+        return usuario.getNombre() != null
+                && !usuario.getNombre().isBlank()
+                && usuario.getCorreo() != null
+                && !usuario.getCorreo().isBlank()
+                && usuario.getPassword() != null
+                && !usuario.getPassword().isBlank();
+    }
+
+    private void normalizarDatos(Usuario usuario) {
+
+        if (usuario.getNombre() != null) {
+            usuario.setNombre(
+                    usuario.getNombre().trim()
+            );
+        }
+
+        usuario.setCorreo(
+                normalizarCorreo(usuario.getCorreo())
+        );
+    }
+
+    private String normalizarCorreo(String correo) {
+
+        if (correo == null || correo.isBlank()) {
+            return null;
+        }
+
+        return correo.trim().toLowerCase();
     }
 }

@@ -38,9 +38,6 @@ public class ReporteController {
         this.pedidoRepository = pedidoRepository;
     }
 
-    /**
-     * Loads the administrative report metrics and sends them to the view.
-     */
     @GetMapping("/admin/reportes")
     public String mostrarReportes(
             HttpSession session,
@@ -84,6 +81,7 @@ public class ReporteController {
                         EstadoPedido.COMPLETADO
                 );
 
+        // Prevents null totals when there are no completed orders.
         if (totalVendido == null) {
             totalVendido = BigDecimal.ZERO;
         }
@@ -163,9 +161,7 @@ public class ReporteController {
         return "admin/reportes";
     }
 
-    /**
-     * Calculates the average sale using only completed orders.
-     */
+    // Calculates the average using only completed orders.
     private BigDecimal calcularPromedioVenta(
             BigDecimal totalVendido,
             long cantidadPedidosCompletados) {
@@ -188,9 +184,7 @@ public class ReporteController {
         );
     }
 
-    /**
-     * Returns active products with stock between zero and the low-stock limit.
-     */
+    // Filters active low-stock products and sorts them by quantity and name.
     private List<Producto> obtenerProductosPocasExistencias() {
 
         List<Producto> productos =
@@ -214,24 +208,20 @@ public class ReporteController {
                         producto.getCantidad()
                                 <= LIMITE_EXISTENCIAS_BAJAS
                 )
-               .sorted(
-        Comparator
-                .comparingInt(
-                        (Producto producto) ->
-                                producto.getCantidad()
+                .sorted(
+                        Comparator
+                                .comparingInt(
+                                        (Producto producto) ->
+                                                producto.getCantidad()
+                                )
+                                .thenComparing(
+                                        this::obtenerNombreProducto,
+                                        String.CASE_INSENSITIVE_ORDER
+                                )
                 )
-                .thenComparing(
-                        producto ->
-                                obtenerNombreProducto(producto),
-                        String.CASE_INSENSITIVE_ORDER
-                )
-)
                 .toList();
     }
 
-    /**
-     * Returns the ten most recent orders or an empty list.
-     */
     private List<Pedido> obtenerPedidosRecientes() {
 
         List<Pedido> pedidos =
@@ -243,9 +233,7 @@ public class ReporteController {
                 : List.of();
     }
 
-    /**
-     * Returns a normalized product name for safe sorting.
-     */
+    // Returns an empty value when the product name cannot be safely sorted.
     private String obtenerNombreProducto(
             Producto producto) {
 
@@ -259,9 +247,7 @@ public class ReporteController {
         return producto.getNombre().trim();
     }
 
-    /**
-     * Verifies that the current session belongs to an administrator.
-     */
+    // Verifies that the current session belongs to an administrator.
     private boolean esAdministrador(
             HttpSession session) {
 

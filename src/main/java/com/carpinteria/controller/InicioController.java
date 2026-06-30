@@ -1,3 +1,4 @@
+
 package com.carpinteria.controller;
 
 import com.carpinteria.model.Producto;
@@ -22,7 +23,7 @@ public class InicioController {
     @GetMapping("/")
     public String mostrarInicio(Model model) {
 
-        // Only products with an uploaded image are displayed in the home carousel.
+        // Displays only products with a valid image in the home carousel.
         List<Producto> productosCarrusel = productoRepository.findAll()
                 .stream()
                 .filter(producto -> producto.getImagen() != null)
@@ -35,3 +36,4 @@ public class InicioController {
         return "index";
     }
 }
+

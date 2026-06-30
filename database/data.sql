@@ -1,10 +1,13 @@
+
 USE carpinteria_circular;
 
+-- Creates initial users for administrative access and client testing.
 INSERT INTO usuarios (correo, nombre, password, rol)
 VALUES
 ('admin@carpinteria.com', 'Administrador', '1234', 'ADMIN'),
 ('cliente@correo.com', 'Cliente de prueba', '1234', 'CLIENTE');
 
+-- Loads sample clients used by the initial orders.
 INSERT INTO clientes (
     activo,
     correo,
@@ -31,6 +34,7 @@ VALUES
     '8777-2222'
 );
 
+-- Loads the initial catalog and inventory quantities.
 INSERT INTO productos (
     activo,
     cantidad,
@@ -69,6 +73,7 @@ VALUES
     15000.00
 );
 
+-- Each order references an existing client through cliente_id.
 INSERT INTO pedidos (
     estado,
     fecha,
@@ -92,6 +97,7 @@ VALUES
     2
 );
 
+-- Stores the products, quantities and historical unit prices for each order.
 INSERT INTO detalle_pedido (
     cantidad,
     precio_unitario,
@@ -103,6 +109,7 @@ VALUES
 (1, 28000.00, 1, 2),
 (2, 15000.00, 2, 3);
 
+-- Creates the shipment associated with the first sample order.
 INSERT INTO envios (
     direccion_entrega,
     estado,
@@ -126,3 +133,4 @@ VALUES
     'Transporte local',
     1
 );
+

@@ -1,3 +1,4 @@
+
 package com.carpinteria.controller;
 
 import java.util.Arrays;
@@ -40,9 +41,6 @@ public class PedidoController {
         this.productoService = productoService;
     }
 
-    /**
-     * Muestra todos los pedidos registrados.
-     */
     @GetMapping
     public String listar(
             Model model,
@@ -57,11 +55,6 @@ public class PedidoController {
                 pedidoService.listarTodos()
         );
 
-        /*
-         * Se conserva por compatibilidad con pedidos.html,
-         * en caso de que la vista todavía muestre algún
-         * selector general de estados.
-         */
         model.addAttribute(
                 "estados",
                 Arrays.asList(EstadoPedido.values())
@@ -70,10 +63,6 @@ public class PedidoController {
         return "admin/pedidos";
     }
 
-    /**
-     * Muestra el formulario para registrar un pedido
-     * desde el panel administrativo.
-     */
     @GetMapping("/nuevo")
     public String mostrarFormulario(
             Model model,
@@ -95,9 +84,6 @@ public class PedidoController {
         return "admin/pedido-formulario";
     }
 
-    /**
-     * Registra un pedido nuevo.
-     */
     @PostMapping("/guardar")
     public String guardar(
             @ModelAttribute("pedidoFormulario")
@@ -154,9 +140,6 @@ public class PedidoController {
         }
     }
 
-    /**
-     * Muestra el detalle completo de un pedido.
-     */
     @GetMapping("/ver/{id}")
     public String verDetalle(
             @PathVariable Long id,
@@ -180,10 +163,7 @@ public class PedidoController {
                     pedido
             );
 
-            /*
-             * La vista debe utilizar esta colección
-             * en lugar de EstadoPedido.values().
-             */
+            // Sends only the valid next states for the current order.
             model.addAttribute(
                     "estadosDisponibles",
                     obtenerEstadosDisponibles(
@@ -216,13 +196,6 @@ public class PedidoController {
         }
     }
 
-    /**
-     * Cambia el estado de un pedido.
-     *
-     * El parámetro se recibe como String para evitar
-     * que Spring genere un error 400 si llega un valor
-     * que no pertenece al enum EstadoPedido.
-     */
     @PostMapping("/estado/{id}")
     public String cambiarEstado(
             @PathVariable Long id,
@@ -242,6 +215,7 @@ public class PedidoController {
 
             validarId(id);
 
+            // Converts the submitted text safely before changing the order state.
             EstadoPedido estado =
                     convertirEstado(estadoTexto);
 
@@ -288,10 +262,6 @@ public class PedidoController {
         }
     }
 
-    /**
-     * Registra como pagado un pedido cuyo método
-     * de pago es PAGO_AL_RETIRAR.
-     */
     @PostMapping("/{id}/registrar-pago-retiro")
     public String registrarPagoAlRetirar(
             @PathVariable Long id,
@@ -306,6 +276,7 @@ public class PedidoController {
 
             validarId(id);
 
+            // Registers payment only for eligible pay-on-pickup orders.
             pedidoService
                     .marcarPagoAlRetirarComoPagado(id);
 
@@ -347,10 +318,6 @@ public class PedidoController {
         }
     }
 
-    /**
-     * Carga las listas necesarias para mostrar nuevamente
-     * el formulario después de una validación fallida.
-     */
     private void cargarDatosFormulario(Model model) {
 
         model.addAttribute(
@@ -364,10 +331,7 @@ public class PedidoController {
         );
     }
 
-    /**
-     * Devuelve únicamente los estados a los que el pedido
-     * puede avanzar desde su estado actual.
-     */
+    // Defines the valid state transitions for an order.
     private List<EstadoPedido> obtenerEstadosDisponibles(
             EstadoPedido estadoActual) {
 
@@ -392,10 +356,7 @@ public class PedidoController {
         };
     }
 
-    /**
-     * Convierte el texto recibido desde el formulario
-     * en un valor válido del enum EstadoPedido.
-     */
+    // Normalizes the submitted value before converting it to the enum.
     private EstadoPedido convertirEstado(
             String estadoTexto) {
 
@@ -439,10 +400,7 @@ public class PedidoController {
         return "redirect:/admin/pedidos/ver/" + id;
     }
 
-    /**
-     * Evita mostrar mensajes vacíos o detalles técnicos
-     * directamente en la interfaz.
-     */
+    // Prevents empty or technical exception messages from reaching the view.
     private String obtenerMensajeSeguro(
             Exception excepcion,
             String mensajePredeterminado) {
@@ -457,10 +415,7 @@ public class PedidoController {
         return excepcion.getMessage();
     }
 
-    /**
-     * Comprueba que exista una sesión iniciada y que
-     * el rol almacenado sea ADMIN.
-     */
+    // Verifies that the current session belongs to an administrator.
     private boolean esAdministrador(
             HttpSession session) {
 
@@ -483,3 +438,4 @@ public class PedidoController {
                 );
     }
 }
+

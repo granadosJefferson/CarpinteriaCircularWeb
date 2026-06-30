@@ -1,9 +1,9 @@
 package com.carpinteria.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.carpinteria.model.Producto;
 import com.carpinteria.repository.ProductoRepository;
@@ -18,99 +18,182 @@ public class ProductoService {
     }
 
     public List<Producto> listarTodos() {
-        return productoRepository.findAll();
+        return productoRepository.findAllByOrderByNombreAsc();
     }
 
     public List<Producto> listarActivos() {
-        return productoRepository.findByActivoTrue();
+        return productoRepository.findByActivoTrueOrderByNombreAsc();
     }
 
-    public Optional<Producto> buscarPorId(Long id) {
-        return productoRepository.findById(id);
+    public Producto buscarPorId(Long id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "El identificador del producto es obligatorio"
+            );
+        }
+
+        return productoRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "El producto no existe"
+                        )
+                );
     }
 
     public List<Producto> buscarPorNombre(String nombre) {
-        return productoRepository.findByNombreContainingIgnoreCase(nombre);
+
+        if (nombre == null || nombre.isBlank()) {
+            return listarTodos();
+        }
+
+        return productoRepository
+                .findByNombreContainingIgnoreCase(
+                        nombre.trim()
+                );
     }
 
     public List<Producto> buscarPorCategoria(String categoria) {
-        return productoRepository.findByCategoriaIgnoreCase(categoria);
-    }
 
-   public Producto guardar(Producto producto) {
-    validarProducto(producto);
-
-    if (producto.getActivo() == null) {
-        producto.setActivo(true);
-    }
-
-    return productoRepository.save(producto);
-}
-
-public Producto actualizar(Long id, Producto productoActualizado) {
-    Producto productoExistente = productoRepository.findById(id)
-            .orElseThrow(() ->
-                    new IllegalArgumentException("El producto no existe"));
-
-    validarProducto(productoActualizado);
-
-    productoExistente.setNombre(productoActualizado.getNombre());
-    productoExistente.setDescripcion(productoActualizado.getDescripcion());
-    productoExistente.setPrecio(productoActualizado.getPrecio());
-    productoExistente.setCantidad(productoActualizado.getCantidad());
-    productoExistente.setCategoria(productoActualizado.getCategoria());
-    productoExistente.setImagen(productoActualizado.getImagen());
-
-    
-    return productoRepository.save(productoExistente);
-}
-
-    public void eliminar(Long id) {
-        if (!productoRepository.existsById(id)) {
-            throw new IllegalArgumentException("El producto no existe");
+        if (categoria == null || categoria.isBlank()) {
+            return listarTodos();
         }
 
-        productoRepository.deleteById(id);
+        return productoRepository
+                .findByCategoriaIgnoreCase(
+                        categoria.trim()
+                );
     }
 
-    public Producto cambiarEstado(Long id) {
-        Producto producto = productoRepository.findById(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("El producto no existe"));
+    // Validates and normalizes product data before storing it.
+    @Transactional
+    public Producto guardar(Producto producto) {
 
-        producto.setActivo(!Boolean.TRUE.equals(producto.getActivo()));
+        validarProducto(producto);
+        normalizarDatos(producto);
+
+        producto.setId(null);
+
+        if (producto.getActivo() == null) {
+            producto.setActivo(true);
+        }
 
         return productoRepository.save(producto);
     }
 
-   private void validarProducto(Producto producto) {
+    // Updates product information while preserving its current status.
+    @Transactional
+    public Producto actualizar(
+            Long id,
+            Producto productoActualizado) {
 
-    if (producto.getNombre() == null
-            || producto.getNombre().isBlank()) {
-        throw new IllegalArgumentException(
-                "El nombre del producto es obligatorio");
+        Producto productoExistente = buscarPorId(id);
+
+        validarProducto(productoActualizado);
+        normalizarDatos(productoActualizado);
+
+        productoExistente.setNombre(
+                productoActualizado.getNombre()
+        );
+
+        productoExistente.setDescripcion(
+                productoActualizado.getDescripcion()
+        );
+
+        productoExistente.setPrecio(
+                productoActualizado.getPrecio()
+        );
+
+        productoExistente.setCantidad(
+                productoActualizado.getCantidad()
+        );
+
+        productoExistente.setCategoria(
+                productoActualizado.getCategoria()
+        );
+
+        if (productoActualizado.getImagen() != null
+                && !productoActualizado.getImagen().isBlank()) {
+
+            productoExistente.setImagen(
+                    productoActualizado.getImagen()
+            );
+        }
+
+        return productoRepository.save(productoExistente);
     }
 
-    if (producto.getPrecio() == null
-            || producto.getPrecio().signum() < 0) {
-        throw new IllegalArgumentException(
-                "El precio debe ser mayor o igual a cero");
+    // Toggles product availability without deleting its sales history.
+    @Transactional
+    public Producto cambiarEstado(Long id) {
+
+        Producto producto = buscarPorId(id);
+
+        producto.setActivo(
+                !Boolean.TRUE.equals(producto.getActivo())
+        );
+
+        return productoRepository.save(producto);
     }
 
-    if (producto.getCantidad() == null
-            || producto.getCantidad() < 0) {
-        throw new IllegalArgumentException(
-                "La cantidad debe ser mayor o igual a cero");
+    private void validarProducto(Producto producto) {
+
+        if (producto == null) {
+            throw new IllegalArgumentException(
+                    "Los datos del producto son inválidos"
+            );
+        }
+
+        if (producto.getNombre() == null
+                || producto.getNombre().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "El nombre del producto es obligatorio"
+            );
+        }
+
+        if (producto.getPrecio() == null
+                || producto.getPrecio().signum() < 0) {
+
+            throw new IllegalArgumentException(
+                    "El precio debe ser mayor o igual a cero"
+            );
+        }
+
+        if (producto.getCantidad() == null
+                || producto.getCantidad() < 0) {
+
+            throw new IllegalArgumentException(
+                    "La cantidad debe ser mayor o igual a cero"
+            );
+        }
     }
 
-    producto.setNombre(producto.getNombre().trim());
+    private void normalizarDatos(Producto producto) {
 
-    if (producto.getDescripcion() != null) {
-        producto.setDescripcion(producto.getDescripcion().trim());
+        producto.setNombre(
+                producto.getNombre().trim()
+        );
+
+        producto.setDescripcion(
+                normalizarTexto(producto.getDescripcion())
+        );
+
+        producto.setCategoria(
+                normalizarTexto(producto.getCategoria())
+        );
+
+        producto.setImagen(
+                normalizarTexto(producto.getImagen())
+        );
     }
 
-    if (producto.getCategoria() != null) {
-        producto.setCategoria(producto.getCategoria().trim());
+    private String normalizarTexto(String texto) {
+
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
+
+        return texto.trim();
     }
-}
 }

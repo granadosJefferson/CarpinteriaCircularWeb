@@ -1,3 +1,4 @@
+
 package com.carpinteria.controller;
 
 import java.util.List;
@@ -273,10 +274,7 @@ public class EnvioController {
                     e.getMessage()
             );
 
-            /*
-             * Se verifica si el envío existe antes de redirigir
-             * nuevamente a su detalle.
-             */
+            // Redirects to the detail only when the shipment still exists.
             try {
                 envioService.buscarPorId(id);
                 return "redirect:/admin/envios/" + id;
@@ -330,6 +328,7 @@ public class EnvioController {
         );
     }
 
+    // Defines the valid next states for the current shipment status.
     private List<EstadoEnvio> obtenerEstadosDisponibles(
             EstadoEnvio estadoActual) {
 
@@ -358,6 +357,7 @@ public class EnvioController {
         };
     }
 
+    // Excludes cancelled orders and orders that already have a shipment.
     private List<Pedido> obtenerPedidosDisponibles() {
 
         return pedidoRepository
@@ -383,3 +383,4 @@ public class EnvioController {
         return "ADMIN".equals(rol);
     }
 }
+

@@ -39,23 +39,12 @@ public class Pedido {
     @Column(nullable = false, length = 30)
     private EstadoPedido estado;
 
-    /*
-     * Total de los productos sin incluir el envío.
-     */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal = BigDecimal.ZERO;
 
-    /*
-     * Costo adicional por envío.
-     * Será ₡0 para retiro personal y ₡10 000 para envío.
-     */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal costoEnvio = BigDecimal.ZERO;
 
-    /*
-     * Total definitivo:
-     * subtotal + costoEnvio.
-     */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 
@@ -71,17 +60,9 @@ public class Pedido {
     @Column(nullable = false, length = 30)
     private EstadoPago estadoPago = EstadoPago.PENDIENTE;
 
-    /*
-     * Referencia generada para el pago simulado.
-     * Ejemplo: SIM-A12B34CD.
-     */
     @Column(length = 100)
     private String referenciaPago;
 
-    /*
-     * Estos campos se utilizan únicamente cuando
-     * tipoEntrega es ENVIO.
-     */
     @Column(length = 100)
     private String provincia;
 
@@ -117,9 +98,6 @@ public class Pedido {
     public Pedido() {
     }
 
-    /*
-     * Se ejecuta antes de insertar el pedido.
-     */
     @PrePersist
     public void prepararPedido() {
 
@@ -131,13 +109,8 @@ public class Pedido {
         calcularTotal();
     }
 
-    /*
-     * Mantiene los cálculos consistentes cuando
-     * el pedido se actualiza.
-     */
     @PreUpdate
     public void prepararActualizacion() {
-
         prepararValoresPredeterminados();
         calcularTotal();
     }
@@ -204,12 +177,7 @@ public class Pedido {
         }
     }
 
-    /*
-     * Calcula:
-     *
-     * subtotal = suma de precio unitario × cantidad
-     * total = subtotal + costo de envío
-     */
+    // Recalculates the subtotal and total from the current order details.
     public void calcularTotal() {
 
         BigDecimal subtotalCalculado = BigDecimal.ZERO;
@@ -272,10 +240,6 @@ public class Pedido {
         this.total = subtotalCalculado.add(envioSeguro);
     }
 
-    /*
-     * Configura automáticamente el costo según
-     * el tipo de entrega seleccionado.
-     */
     public void configurarCostoEntrega() {
 
         if (tipoEntrega == TipoEntrega.ENVIO) {
@@ -445,34 +409,29 @@ public class Pedido {
         return detalles;
     }
 
-    public void setDetalles(List<DetallePedido> detalles) {
+    // Rebuilds the collection while preserving both sides of the relationship.
+    public void setDetalles(List<DetallePedido> nuevosDetalles) {
 
-        /*
-         * Desconecta los detalles anteriores para mantener
-         * consistente la relación bidireccional.
-         */
-        if (this.detalles != null) {
-            for (DetallePedido detalleAnterior : this.detalles) {
-                if (detalleAnterior != null) {
-                    detalleAnterior.setPedido(null);
-                }
+        if (this.detalles == null) {
+            this.detalles = new ArrayList<>();
+        }
+
+        for (DetallePedido detalleAnterior : this.detalles) {
+            if (detalleAnterior != null) {
+                detalleAnterior.setPedido(null);
             }
         }
 
-        this.detalles = new ArrayList<>();
+        this.detalles.clear();
 
-        if (detalles == null) {
+        if (nuevosDetalles == null) {
             return;
         }
 
-        for (DetallePedido detalle : detalles) {
-
-            if (detalle == null) {
-                continue;
+        for (DetallePedido detalle : nuevosDetalles) {
+            if (detalle != null) {
+                agregarDetalle(detalle);
             }
-
-            this.detalles.add(detalle);
-            detalle.setPedido(this);
         }
     }
 }

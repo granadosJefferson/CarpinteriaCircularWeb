@@ -1,3 +1,4 @@
+
 package com.carpinteria.controller;
 
 import jakarta.validation.Valid;
@@ -55,6 +56,7 @@ public class ClienteController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
+        // Returns the same form when validation errors are detected.
         if (resultado.hasErrors()) {
             model.addAttribute(
                     "titulo",
@@ -101,3 +103,4 @@ public class ClienteController {
         return "redirect:/admin/clientes";
     }
 }
+
